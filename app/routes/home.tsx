@@ -26,6 +26,8 @@ type LoaderData = ReadyStorefront | UnconfiguredStorefront;
 
 const DISPLAYED_SIZES = ["S", "M", "L", "XL", "2XL"] as const;
 
+type ProductView = "front" | "back" | "story";
+
 export function meta() {
   return [
     { title: "30shirts.cc" },
@@ -78,7 +80,7 @@ function Storefront({ products }: { products: Product[] }) {
     productId: initialProduct.id,
     selectedSize: initialVariant.size ?? DISPLAYED_SIZES[0],
   }));
-  const [isBackVisible, setIsBackVisible] = useState(false);
+  const [productView, setProductView] = useState<ProductView>("front");
   const focusRef = useRef<HTMLElement>(null);
   const { addItem, pending } = useCart();
   const selectedProduct =
@@ -97,6 +99,16 @@ function Storefront({ products }: { products: Product[] }) {
   const referenceImages = productDescription
     ? selectedProduct.images.slice(2)
     : [];
+  const hasProductStory =
+    referenceImages.length > 0 || productDescription.length > 0;
+  const availableViews: ProductView[] = ["front"];
+  if (selectedBackImage) {
+    availableViews.push("back");
+  }
+  if (hasProductStory) {
+    availableViews.push("story");
+  }
+  const nextProductView = getNextProductView(productView, availableViews);
 
   function selectProduct(product: Product) {
     if (product.id === selectedProduct.id) {
@@ -111,21 +123,18 @@ function Storefront({ products }: { products: Product[] }) {
 
     setSelection({ productId: product.id, selectedSize });
     replaceGalleryUrl(product.id, selectedSize);
-    setIsBackVisible(false);
+    setProductView("front");
 
-    requestAnimationFrame(() => {
-      if (window.matchMedia("(max-width: 760px)").matches) {
-        const behavior = window.matchMedia(
-          "(prefers-reduced-motion: reduce)",
-        ).matches
-          ? "auto"
-          : "smooth";
+    if (window.matchMedia("(max-width: 760px)").matches) {
+      const behavior = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches
+        ? "auto"
+        : "smooth";
+      requestAnimationFrame(() => {
         focusRef.current?.scrollIntoView({ behavior, block: "start" });
-        return;
-      }
-
-      focusRef.current?.scrollTo({ top: 0 });
-    });
+      });
+    }
   }
 
   function selectSize(variant: ProductVariant) {
@@ -137,77 +146,79 @@ function Storefront({ products }: { products: Product[] }) {
   return (
     <main className="storefront">
       <section className="product-focus" ref={focusRef} tabIndex={-1}>
-        <div className="product-focus__hero">
-          <button
-            className="product-focus__artwork"
-            type="button"
-            aria-label={`Show ${isBackVisible ? "front" : "back"} of ${selectedProduct.name}`}
-            aria-pressed={isBackVisible}
-            data-side={isBackVisible ? "back" : "front"}
-            data-size={selectedVariant.size}
-            disabled={!selectedBackImage}
-            onClick={() => setIsBackVisible((current) => !current)}
-          >
-            <span className="shirt-viewer__views">
-              {selectedImage ? (
-                <span className="shirt-viewer__face shirt-viewer__face--front">
-                  <img
-                    src={selectedImage.url}
-                    width={selectedImage.width}
-                    height={selectedImage.height}
-                    alt=""
-                    fetchPriority="high"
-                  />
+        <button
+          className="product-focus__artwork"
+          type="button"
+          aria-label={getProductViewLabel(
+            nextProductView,
+            selectedProduct.name,
+          )}
+          data-side={productView === "back" ? "back" : "front"}
+          data-view={productView}
+          data-size={selectedVariant.size}
+          disabled={availableViews.length === 1}
+          onClick={() =>
+            setProductView((current) =>
+              getNextProductView(current, availableViews),
+            )
+          }
+        >
+          <span className="shirt-viewer__views">
+            {selectedImage ? (
+              <span className="shirt-viewer__face shirt-viewer__face--front">
+                <img
+                  src={selectedImage.url}
+                  width={selectedImage.width}
+                  height={selectedImage.height}
+                  alt=""
+                  fetchPriority="high"
+                />
+              </span>
+            ) : null}
+            {selectedBackImage ? (
+              <span className="shirt-viewer__face shirt-viewer__face--back">
+                <img
+                  src={selectedBackImage.url}
+                  width={selectedBackImage.width}
+                  height={selectedBackImage.height}
+                  alt=""
+                />
+              </span>
+            ) : null}
+          </span>
+
+          {hasProductStory ? (
+            <span className="product-story-view">
+              {referenceImages.length > 0 ? (
+                <span className="product-story-view__images">
+                  {referenceImages.map((image, index) => (
+                    <img
+                      src={image.url}
+                      width={image.width}
+                      height={image.height}
+                      alt={`Reference ${index + 1} for ${selectedProduct.name}`}
+                      decoding="async"
+                      key={image.id}
+                    />
+                  ))}
                 </span>
               ) : null}
-              {selectedBackImage ? (
-                <span className="shirt-viewer__face shirt-viewer__face--back">
-                  <img
-                    src={selectedBackImage.url}
-                    width={selectedBackImage.width}
-                    height={selectedBackImage.height}
-                    alt=""
-                  />
+              {productDescription ? (
+                <span className="product-story-view__description">
+                  {productDescription}
                 </span>
               ) : null}
             </span>
-            {selectedProductSoldOut ? (
-              <span className="sold-out-badge">sold out</span>
-            ) : null}
-          </button>
-          <div className="product-focus__caption">
-            <h1>{selectedProduct.name}</h1>
-            <span>{formatMoney(selectedVariant.price)}</span>
-          </div>
-        </div>
+          ) : null}
 
-        {referenceImages.length > 0 || productDescription ? (
-          <section
-            className="product-story"
-            aria-label={`${selectedProduct.name} design notes`}
-          >
-            {referenceImages.length > 0 ? (
-              <div className="product-story__images">
-                {referenceImages.map((image, index) => (
-                  <img
-                    src={image.url}
-                    width={image.width}
-                    height={image.height}
-                    alt={`Reference ${index + 1} for ${selectedProduct.name}`}
-                    loading="lazy"
-                    decoding="async"
-                    key={image.id}
-                  />
-                ))}
-              </div>
-            ) : null}
-            {productDescription ? (
-              <p className="product-story__description">
-                {productDescription}
-              </p>
-            ) : null}
-          </section>
-        ) : null}
+          {selectedProductSoldOut && productView !== "story" ? (
+            <span className="sold-out-badge">sold out</span>
+          ) : null}
+        </button>
+        <div className="product-focus__caption">
+          <h1>{selectedProduct.name}</h1>
+          <span>{formatMoney(selectedVariant.price)}</span>
+        </div>
       </section>
 
       <aside
@@ -295,6 +306,20 @@ function Storefront({ products }: { products: Product[] }) {
       </p>
     </main>
   );
+}
+
+function getNextProductView(
+  currentView: ProductView,
+  availableViews: ProductView[],
+): ProductView {
+  const currentIndex = availableViews.indexOf(currentView);
+  return availableViews[(currentIndex + 1) % availableViews.length] ?? "front";
+}
+
+function getProductViewLabel(view: ProductView, productName: string): string {
+  return view === "story"
+    ? `Show design notes for ${productName}`
+    : `Show ${view} of ${productName}`;
 }
 
 function replaceGalleryUrl(productId: string, size: string) {
