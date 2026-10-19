@@ -309,7 +309,6 @@ select:focus-visible {
   min-height: 0;
   object-fit: contain;
   object-position: center;
-  background: var(--image-surface);
 }
 
 .product-story-view__description {
