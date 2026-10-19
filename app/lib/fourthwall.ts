@@ -149,7 +149,7 @@ export function parseProduct(value: unknown): Product {
     id: requireString(product.id, "product id"),
     slug: requireString(product.slug, "product slug"),
     name: requireString(product.name, "product name"),
-    description: requireString(product.description, "product description"),
+    description: parseProductDescription(product.description),
     available: readType(product.state) === "AVAILABLE",
     images: requireArray(product.images, "product images").map(parseImage),
     variants,
@@ -225,6 +225,22 @@ function parseImage(value: unknown): ProductImage {
     width: requireNumber(image.width, "image width"),
     height: requireNumber(image.height, "image height"),
   };
+}
+
+function parseProductDescription(value: unknown): string {
+  return requireString(value, "product description")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>\s*/gi, "\n\n")
+    .replace(/<[^>]+>/g, "")
+    .replaceAll("&nbsp;", " ")
+    .replaceAll("&#39;", "'")
+    .replaceAll("&apos;", "'")
+    .replaceAll("&quot;", '"')
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&amp;", "&")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 function readAttributeName(value: unknown): string | undefined {

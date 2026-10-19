@@ -128,11 +128,17 @@ select:focus-visible {
 }
 
 .product-focus {
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
   min-width: 0;
   min-height: 0;
+  overflow-y: auto;
   outline: none;
+  scrollbar-width: thin;
+}
+
+.product-focus__hero {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: calc(100dvh - 1rem);
 }
 
 .product-focus__artwork,
@@ -272,6 +278,34 @@ select:focus-visible {
 
 .product-focus__caption > span {
   flex: none;
+}
+
+.product-story {
+  display: grid;
+  gap: clamp(2rem, 4vw, 4rem);
+  padding: clamp(2rem, 4vw, 4rem) 0.15rem 4rem;
+}
+
+.product-story__images {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.product-story__images img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: var(--image-surface);
+}
+
+.product-story__description {
+  max-width: 50rem;
+  margin: 0;
+  font-size: var(--type-caption);
+  line-height: 1.4;
+  white-space: pre-line;
 }
 
 .purchase-panel {
@@ -898,8 +932,22 @@ select:focus-visible {
   }
 
   .product-focus {
-    scroll-margin-top: 5rem;
     margin-top: 4rem;
+    overflow: visible;
+    scroll-margin-top: 5rem;
+  }
+
+  .product-focus__hero {
+    min-height: 0;
+  }
+
+  .product-story {
+    gap: 2rem;
+    padding: 2rem 0 3rem;
+  }
+
+  .product-story__images {
+    grid-template-columns: 1fr;
   }
 
   .product-focus__artwork {

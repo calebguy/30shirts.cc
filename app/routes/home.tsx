@@ -93,6 +93,10 @@ function Storefront({ products }: { products: Product[] }) {
   const selectedBackImage =
     selectedVariant.images[1] ?? selectedProduct.images[1];
   const selectedProductSoldOut = isSoldOut(selectedProduct);
+  const productDescription = selectedProduct.description.trim();
+  const referenceImages = productDescription
+    ? selectedProduct.images.slice(2)
+    : [];
 
   function selectProduct(product: Product) {
     if (product.id === selectedProduct.id) {
@@ -109,16 +113,19 @@ function Storefront({ products }: { products: Product[] }) {
     replaceGalleryUrl(product.id, selectedSize);
     setIsBackVisible(false);
 
-    if (window.matchMedia("(max-width: 760px)").matches) {
-      const behavior = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches
-        ? "auto"
-        : "smooth";
-      requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      if (window.matchMedia("(max-width: 760px)").matches) {
+        const behavior = window.matchMedia(
+          "(prefers-reduced-motion: reduce)",
+        ).matches
+          ? "auto"
+          : "smooth";
         focusRef.current?.scrollIntoView({ behavior, block: "start" });
-      });
-    }
+        return;
+      }
+
+      focusRef.current?.scrollTo({ top: 0 });
+    });
   }
 
   function selectSize(variant: ProductVariant) {
@@ -130,47 +137,77 @@ function Storefront({ products }: { products: Product[] }) {
   return (
     <main className="storefront">
       <section className="product-focus" ref={focusRef} tabIndex={-1}>
-        <button
-          className="product-focus__artwork"
-          type="button"
-          aria-label={`Show ${isBackVisible ? "front" : "back"} of ${selectedProduct.name}`}
-          aria-pressed={isBackVisible}
-          data-side={isBackVisible ? "back" : "front"}
-          data-size={selectedVariant.size}
-          disabled={!selectedBackImage}
-          onClick={() => setIsBackVisible((current) => !current)}
-        >
-          <span className="shirt-viewer__views">
-            {selectedImage ? (
-              <span className="shirt-viewer__face shirt-viewer__face--front">
-                <img
-                  src={selectedImage.url}
-                  width={selectedImage.width}
-                  height={selectedImage.height}
-                  alt=""
-                  fetchPriority="high"
-                />
-              </span>
+        <div className="product-focus__hero">
+          <button
+            className="product-focus__artwork"
+            type="button"
+            aria-label={`Show ${isBackVisible ? "front" : "back"} of ${selectedProduct.name}`}
+            aria-pressed={isBackVisible}
+            data-side={isBackVisible ? "back" : "front"}
+            data-size={selectedVariant.size}
+            disabled={!selectedBackImage}
+            onClick={() => setIsBackVisible((current) => !current)}
+          >
+            <span className="shirt-viewer__views">
+              {selectedImage ? (
+                <span className="shirt-viewer__face shirt-viewer__face--front">
+                  <img
+                    src={selectedImage.url}
+                    width={selectedImage.width}
+                    height={selectedImage.height}
+                    alt=""
+                    fetchPriority="high"
+                  />
+                </span>
+              ) : null}
+              {selectedBackImage ? (
+                <span className="shirt-viewer__face shirt-viewer__face--back">
+                  <img
+                    src={selectedBackImage.url}
+                    width={selectedBackImage.width}
+                    height={selectedBackImage.height}
+                    alt=""
+                  />
+                </span>
+              ) : null}
+            </span>
+            {selectedProductSoldOut ? (
+              <span className="sold-out-badge">sold out</span>
             ) : null}
-            {selectedBackImage ? (
-              <span className="shirt-viewer__face shirt-viewer__face--back">
-                <img
-                  src={selectedBackImage.url}
-                  width={selectedBackImage.width}
-                  height={selectedBackImage.height}
-                  alt=""
-                />
-              </span>
-            ) : null}
-          </span>
-          {selectedProductSoldOut ? (
-            <span className="sold-out-badge">sold out</span>
-          ) : null}
-        </button>
-        <div className="product-focus__caption">
-          <h1>{selectedProduct.name}</h1>
-          <span>{formatMoney(selectedVariant.price)}</span>
+          </button>
+          <div className="product-focus__caption">
+            <h1>{selectedProduct.name}</h1>
+            <span>{formatMoney(selectedVariant.price)}</span>
+          </div>
         </div>
+
+        {referenceImages.length > 0 || productDescription ? (
+          <section
+            className="product-story"
+            aria-label={`${selectedProduct.name} design notes`}
+          >
+            {referenceImages.length > 0 ? (
+              <div className="product-story__images">
+                {referenceImages.map((image, index) => (
+                  <img
+                    src={image.url}
+                    width={image.width}
+                    height={image.height}
+                    alt={`Reference ${index + 1} for ${selectedProduct.name}`}
+                    loading="lazy"
+                    decoding="async"
+                    key={image.id}
+                  />
+                ))}
+              </div>
+            ) : null}
+            {productDescription ? (
+              <p className="product-story__description">
+                {productDescription}
+              </p>
+            ) : null}
+          </section>
+        ) : null}
       </section>
 
       <aside
