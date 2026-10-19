@@ -194,9 +194,6 @@ export function useCart(): CartContextValue {
 
 export function CartButton() {
   const { itemCount } = useCart();
-  if (itemCount === 0) {
-    return null;
-  }
 
   return (
     <NavLink className="cart-trigger" to="/cart">
