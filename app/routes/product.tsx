@@ -86,7 +86,10 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
         <section className="product-page__details">
           <h1>{product.name}</h1>
           <p className="product-price">{formatMoney(selectedVariant.price)}</p>
-          <p className="product-description">{product.description}</p>
+          <div
+            className="product-description"
+            dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
+          />
 
           <label className="variant-picker">
             <span>Options</span>

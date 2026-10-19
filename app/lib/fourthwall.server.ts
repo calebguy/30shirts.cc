@@ -1,10 +1,30 @@
 import { env } from "cloudflare:workers";
+import sanitizeHtml from "sanitize-html";
 
 import type { Currency, Product, StorefrontConfig } from "./fourthwall";
-import { parseCurrency, parseProduct, parseProductPage } from "./fourthwall";
+import {
+  parseCurrency,
+  parseProduct,
+  parseProductPage,
+  productDescriptionHtmlToText,
+} from "./fourthwall";
 
 const FOURTHWALL_API_BASE = "https://storefront-api.fourthwall.com/v1";
 const CATALOG_PAGE_SIZE = "50";
+const PRODUCT_DESCRIPTION_TAGS = [
+  "a",
+  "b",
+  "br",
+  "code",
+  "em",
+  "i",
+  "li",
+  "ol",
+  "p",
+  "strong",
+  "u",
+  "ul",
+];
 
 interface CatalogRequest {
   token: string;
@@ -40,7 +60,6 @@ export function getStorefrontConfig(): StorefrontConfig | undefined {
   };
 }
 
-
 export async function listProducts(
   request: CatalogRequest,
 ): Promise<Product[]> {
@@ -54,7 +73,7 @@ export async function listProducts(
     url.searchParams.set("page", String(pageNumber));
 
     const page = parseProductPage(await getJson(url, request.signal));
-    products.push(...page.products);
+    products.push(...page.products.map(sanitizeProductDescription));
     hasNextPage = page.hasNextPage;
     pageNumber += 1;
   }
@@ -70,7 +89,22 @@ export async function getProduct(
     request,
   );
   const value = await getJson(url, request.signal);
-  return parseProduct(value);
+  return sanitizeProductDescription(parseProduct(value));
+}
+
+function sanitizeProductDescription(product: Product): Product {
+  const descriptionHtml = sanitizeHtml(product.descriptionHtml, {
+    allowedTags: PRODUCT_DESCRIPTION_TAGS,
+    allowedAttributes: { a: ["href"] },
+    allowedSchemes: ["http", "https", "mailto"],
+    allowProtocolRelative: false,
+  });
+
+  return {
+    ...product,
+    description: productDescriptionHtmlToText(descriptionHtml),
+    descriptionHtml,
+  };
 }
 
 async function getJson(url: URL, signal: AbortSignal): Promise<unknown> {

@@ -96,11 +96,12 @@ function Storefront({ products }: { products: Product[] }) {
     selectedVariant.images[1] ?? selectedProduct.images[1];
   const selectedProductSoldOut = isSoldOut(selectedProduct);
   const productDescription = selectedProduct.description.trim();
+  const productDescriptionHtml = selectedProduct.descriptionHtml.trim();
   const referenceImages = productDescription
     ? selectedProduct.images.slice(2)
     : [];
   const hasProductStory =
-    referenceImages.length > 0 || productDescription.length > 0;
+    referenceImages.length > 0 || productDescriptionHtml.length > 0;
   const availableViews: ProductView[] = ["front"];
   if (selectedBackImage) {
     availableViews.push("back");
@@ -146,51 +147,67 @@ function Storefront({ products }: { products: Product[] }) {
   return (
     <main className="storefront">
       <section className="product-focus" ref={focusRef} tabIndex={-1}>
-        <button
-          className="product-focus__artwork"
-          type="button"
-          aria-label={getProductViewLabel(
-            nextProductView,
-            selectedProduct.name,
-          )}
-          data-side={productView === "back" ? "back" : "front"}
-          data-view={productView}
-          data-size={selectedVariant.size}
-          disabled={availableViews.length === 1}
-          onClick={() =>
-            setProductView((current) =>
-              getNextProductView(current, availableViews),
-            )
-          }
-        >
-          <span className="shirt-viewer__views">
-            {selectedImage ? (
-              <span className="shirt-viewer__face shirt-viewer__face--front">
-                <img
-                  src={selectedImage.url}
-                  width={selectedImage.width}
-                  height={selectedImage.height}
-                  alt=""
-                  fetchPriority="high"
-                />
-              </span>
+        <div className="product-focus__viewer" data-view={productView}>
+          <button
+            className="product-focus__artwork"
+            type="button"
+            aria-label={getProductViewLabel(
+              nextProductView,
+              selectedProduct.name,
+            )}
+            data-side={productView === "back" ? "back" : "front"}
+            data-size={selectedVariant.size}
+            disabled={availableViews.length === 1}
+            onClick={() =>
+              setProductView((current) =>
+                getNextProductView(current, availableViews),
+              )
+            }
+          >
+            <span className="shirt-viewer__views">
+              {selectedImage ? (
+                <span className="shirt-viewer__face shirt-viewer__face--front">
+                  <img
+                    src={selectedImage.url}
+                    width={selectedImage.width}
+                    height={selectedImage.height}
+                    alt=""
+                    fetchPriority="high"
+                  />
+                </span>
+              ) : null}
+              {selectedBackImage ? (
+                <span className="shirt-viewer__face shirt-viewer__face--back">
+                  <img
+                    src={selectedBackImage.url}
+                    width={selectedBackImage.width}
+                    height={selectedBackImage.height}
+                    alt=""
+                  />
+                </span>
+              ) : null}
+            </span>
+
+            {selectedProductSoldOut && productView !== "story" ? (
+              <span className="sold-out-badge">sold out</span>
             ) : null}
-            {selectedBackImage ? (
-              <span className="shirt-viewer__face shirt-viewer__face--back">
-                <img
-                  src={selectedBackImage.url}
-                  width={selectedBackImage.width}
-                  height={selectedBackImage.height}
-                  alt=""
-                />
-              </span>
-            ) : null}
-          </span>
+          </button>
 
           {hasProductStory ? (
-            <span className="product-story-view">
+            <div
+              className="product-story-view"
+              aria-hidden={productView !== "story"}
+            >
               {referenceImages.length > 0 ? (
-                <span className="product-story-view__images">
+                <button
+                  className="product-story-view__images"
+                  type="button"
+                  aria-label={getProductViewLabel(
+                    "front",
+                    selectedProduct.name,
+                  )}
+                  onClick={() => setProductView("front")}
+                >
                   {referenceImages.map((image, index) => (
                     <img
                       src={image.url}
@@ -201,20 +218,18 @@ function Storefront({ products }: { products: Product[] }) {
                       key={image.id}
                     />
                   ))}
-                </span>
+                </button>
               ) : null}
-              {productDescription ? (
-                <span className="product-story-view__description">
-                  {productDescription}
-                </span>
+              {productDescriptionHtml ? (
+                <div
+                  className="product-story-view__description"
+                  dangerouslySetInnerHTML={{ __html: productDescriptionHtml }}
+                />
               ) : null}
-            </span>
+            </div>
           ) : null}
+        </div>
 
-          {selectedProductSoldOut && productView !== "story" ? (
-            <span className="sold-out-badge">sold out</span>
-          ) : null}
-        </button>
         <div className="product-focus__caption">
           <h1>{selectedProduct.name}</h1>
           <span>{formatMoney(selectedVariant.price)}</span>

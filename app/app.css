@@ -135,6 +135,12 @@ select:focus-visible {
   outline: none;
 }
 
+.product-focus__viewer {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
 .product-focus__artwork,
 .archive-card__artwork,
 .cart-item__artwork {
@@ -142,9 +148,10 @@ select:focus-visible {
 }
 
 .product-focus__artwork {
-  position: relative;
-  display: grid;
+  position: absolute;
+  inset: 0;
   width: 100%;
+  height: 100%;
   min-width: 0;
   min-height: 0;
   padding: 0;
@@ -301,6 +308,11 @@ select:focus-visible {
   gap: 0.75rem;
   min-height: 0;
   overflow: hidden;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
 }
 
 .product-story-view__images img {
@@ -312,15 +324,40 @@ select:focus-visible {
 }
 
 .product-story-view__description {
-  display: block;
   max-width: 50rem;
   font-size: var(--type-caption);
   line-height: 1.4;
-  white-space: pre-line;
+  overflow-wrap: anywhere;
+  cursor: text;
+  user-select: text;
 }
 
 .product-story-view__description:only-child {
   place-self: center start;
+}
+
+.product-story-view__description a {
+  color: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+:is(.product-story-view__description, .product-description) > :first-child {
+  margin-top: 0;
+}
+
+:is(.product-story-view__description, .product-description) > :last-child {
+  margin-bottom: 0;
+}
+
+:is(.product-story-view__description, .product-description) p {
+  margin: 0 0 1em;
+}
+
+:is(.product-story-view__description, .product-description) :is(ol, ul) {
+  margin: 0 0 1em;
+  padding-left: 1.25em;
 }
 
 .purchase-panel {
@@ -561,7 +598,13 @@ select:focus-visible {
   color: var(--muted);
   font-size: 0.9rem;
   line-height: 1.6;
-  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.product-description a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
 
 .variant-picker {

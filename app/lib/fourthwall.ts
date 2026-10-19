@@ -44,6 +44,7 @@ export interface Product {
   slug: string;
   name: string;
   description: string;
+  descriptionHtml: string;
   available: boolean;
   images: ProductImage[];
   variants: ProductVariant[];
@@ -145,11 +146,17 @@ export function parseProduct(value: unknown): Product {
     throw new Error("Fourthwall returned a product without variants.");
   }
 
+  const descriptionHtml = requireString(
+    product.description,
+    "product description",
+  );
+
   return {
     id: requireString(product.id, "product id"),
     slug: requireString(product.slug, "product slug"),
     name: requireString(product.name, "product name"),
-    description: parseProductDescription(product.description),
+    description: productDescriptionHtmlToText(descriptionHtml),
+    descriptionHtml,
     available: readType(product.state) === "AVAILABLE",
     images: requireArray(product.images, "product images").map(parseImage),
     variants,
@@ -227,10 +234,10 @@ function parseImage(value: unknown): ProductImage {
   };
 }
 
-function parseProductDescription(value: unknown): string {
-  return requireString(value, "product description")
+export function productDescriptionHtmlToText(html: string): string {
+  return html
     .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<\/p>\s*/gi, "\n\n")
+    .replace(/<\/(?:li|ol|p|ul)>\s*/gi, "\n")
     .replace(/<[^>]+>/g, "")
     .replaceAll("&nbsp;", " ")
     .replaceAll("&#39;", "'")
