@@ -434,13 +434,6 @@ select:focus-visible {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .cart-trigger:hover {
-    text-decoration-line: underline;
-    text-decoration-style: dashed;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 0.22em;
-  }
-
   .size-picker button:hover:not(:disabled):not(.is-selected) {
     border-color: currentColor;
     border-style: dashed;
