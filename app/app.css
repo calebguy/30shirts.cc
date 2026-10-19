@@ -1,13 +1,13 @@
 :root {
-  --background: #f7f7f5;
-  --surface: #ffffff;
-  --text: #111111;
+  --background: #f4f3ee;
+  --surface: var(--background);
+  --text: #171715;
   --muted: #6a6a66;
   --border: #deded9;
   --image-surface: #efefec;
   --error: #a21b1b;
   --sold-out: #ff5900;
-  --sold-out-text: #ffffff;
+  --sold-out-text: #f4f3ee;
   --border-radius: 0;
   --type-display: clamp(1.25rem, 2vw, 2rem);
   --type-caption: clamp(0.9rem, 1.5vw, 1.2rem);
@@ -20,9 +20,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0b0b0a;
-    --surface: #111111;
-    --text: #f5f5f2;
+    --background: #11110f;
+    --text: #f4f3ee;
     --muted: #a5a59e;
     --border: #3a3a36;
     --image-surface: #1a1a18;
