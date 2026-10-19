@@ -55,10 +55,17 @@ export async function loader({
   }
 }
 
+const DEFAULT_SIZE = "L";
+
 export default function ProductPage({ loaderData }: Route.ComponentProps) {
   const { product } = loaderData;
   const initialVariant =
-    product.variants.find((variant) => variant.available) ?? product.variants[0];
+    product.variants.find(
+      (variant) => variant.size === DEFAULT_SIZE && variant.available,
+    ) ??
+    product.variants.find((variant) => variant.available) ??
+    product.variants.find((variant) => variant.size === DEFAULT_SIZE) ??
+    product.variants[0];
   const [selectedVariantId, setSelectedVariantId] = useState(initialVariant.id);
   const selectedVariant =
     product.variants.find((variant) => variant.id === selectedVariantId) ??

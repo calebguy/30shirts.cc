@@ -25,6 +25,7 @@ interface UnconfiguredStorefront {
 type LoaderData = ReadyStorefront | UnconfiguredStorefront;
 
 const DISPLAYED_SIZES = ["S", "M", "L", "XL", "2XL"] as const;
+const DEFAULT_SIZE = "L";
 
 type ProductView = "front" | "back" | "story";
 
@@ -78,7 +79,7 @@ function Storefront({ products }: { products: Product[] }) {
     ) ?? getInitialVariant(initialProduct);
   const [selection, setSelection] = useState(() => ({
     productId: initialProduct.id,
-    selectedSize: initialVariant.size ?? DISPLAYED_SIZES[0],
+    selectedSize: initialVariant.size ?? DEFAULT_SIZE,
   }));
   const [productView, setProductView] = useState<ProductView>("front");
   const focusRef = useRef<HTMLElement>(null);
@@ -358,7 +359,11 @@ function isSoldOut(product: Product): boolean {
 function getInitialVariant(product: Product): ProductVariant {
   const displayedVariants = getDisplayedVariants(product);
   const variant =
+    displayedVariants.find(
+      (candidate) => candidate.size === DEFAULT_SIZE && candidate.available,
+    ) ??
     displayedVariants.find((candidate) => candidate.available) ??
+    displayedVariants.find((candidate) => candidate.size === DEFAULT_SIZE) ??
     displayedVariants[0];
 
   if (!variant) {
