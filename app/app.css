@@ -574,7 +574,7 @@ select:focus-visible {
   padding: 2rem;
   place-items: center;
   overflow: hidden;
-  background: var(--background);
+  background: var(--surface);
 }
 
 .cart-panel {
@@ -586,7 +586,7 @@ select:focus-visible {
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: var(--border-radius);
-  background: var(--background);
+  background: var(--surface);
 }
 
 .cart-page__header {
@@ -785,7 +785,7 @@ select:focus-visible {
   margin-top: auto;
   padding: 1rem;
   border-top: 1px solid var(--border);
-  background: var(--background);
+  background: var(--surface);
 }
 
 .cart-total {
