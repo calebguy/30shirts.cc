@@ -653,6 +653,10 @@ select:focus-visible {
   border-bottom: 1px solid var(--text);
 }
 
+.cart-item:last-child {
+  border-bottom: 0;
+}
+
 .cart-item__artwork {
   position: relative;
   width: 100%;
