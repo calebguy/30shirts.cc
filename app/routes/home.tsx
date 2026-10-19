@@ -27,7 +27,7 @@ type LoaderData = ReadyStorefront | UnconfiguredStorefront;
 const DISPLAYED_SIZES = ["S", "M", "L", "XL", "2XL"] as const;
 const DEFAULT_SIZE = "L";
 
-type ProductView = "front" | "back" | "story";
+type ProductView = "front" | "back";
 
 export function meta() {
   return [
@@ -96,21 +96,12 @@ function Storefront({ products }: { products: Product[] }) {
   const selectedBackImage =
     selectedVariant.images[1] ?? selectedProduct.images[1];
   const selectedProductSoldOut = isSoldOut(selectedProduct);
-  const productDescription = selectedProduct.description.trim();
   const productDescriptionHtml = selectedProduct.descriptionHtml.trim();
-  const referenceImages = productDescription
-    ? selectedProduct.images.slice(2)
-    : [];
-  const hasProductStory =
-    referenceImages.length > 0 || productDescriptionHtml.length > 0;
-  const availableViews: ProductView[] = ["front"];
-  if (selectedBackImage) {
-    availableViews.push("back");
-  }
-  if (hasProductStory) {
-    availableViews.push("story");
-  }
-  const nextProductView = getNextProductView(productView, availableViews);
+  const referenceImages = selectedProduct.images.slice(2, 6);
+  const activeProductView =
+    productView === "back" && selectedBackImage ? "back" : "front";
+  const nextProductView =
+    activeProductView === "front" && selectedBackImage ? "back" : "front";
 
   function selectProduct(product: Product) {
     if (product.id === selectedProduct.id) {
@@ -148,22 +139,30 @@ function Storefront({ products }: { products: Product[] }) {
   return (
     <main className="storefront">
       <section className="product-focus" ref={focusRef} tabIndex={-1}>
-        <div className="product-focus__viewer" data-view={productView}>
+        <div className="product-focus__viewer">
+          {referenceImages.length > 0 ? (
+            <div className="product-focus__references" aria-hidden="true">
+              {referenceImages.map((image) => (
+                <img
+                  src={image.url}
+                  width={image.width}
+                  height={image.height}
+                  alt=""
+                  decoding="async"
+                  key={image.id}
+                />
+              ))}
+            </div>
+          ) : null}
+
           <button
             className="product-focus__artwork"
             type="button"
-            aria-label={getProductViewLabel(
-              nextProductView,
-              selectedProduct.name,
-            )}
-            data-side={productView === "back" ? "back" : "front"}
+            aria-label={`Show ${nextProductView} of ${selectedProduct.name}`}
+            data-side={activeProductView}
             data-size={selectedVariant.size}
-            disabled={availableViews.length === 1}
-            onClick={() =>
-              setProductView((current) =>
-                getNextProductView(current, availableViews),
-              )
-            }
+            disabled={!selectedBackImage}
+            onClick={() => setProductView(nextProductView)}
           >
             <span className="shirt-viewer__views">
               {selectedImage ? (
@@ -189,51 +188,23 @@ function Storefront({ products }: { products: Product[] }) {
               ) : null}
             </span>
 
-            {selectedProductSoldOut && productView !== "story" ? (
+            {selectedProductSoldOut ? (
               <span className="sold-out-badge">sold out</span>
             ) : null}
           </button>
-
-          {hasProductStory ? (
-            <div
-              className="product-story-view"
-              aria-hidden={productView !== "story"}
-            >
-              {referenceImages.length > 0 ? (
-                <button
-                  className="product-story-view__images"
-                  type="button"
-                  aria-label={getProductViewLabel(
-                    "front",
-                    selectedProduct.name,
-                  )}
-                  onClick={() => setProductView("front")}
-                >
-                  {referenceImages.map((image, index) => (
-                    <img
-                      src={image.url}
-                      width={image.width}
-                      height={image.height}
-                      alt={`Reference ${index + 1} for ${selectedProduct.name}`}
-                      decoding="async"
-                      key={image.id}
-                    />
-                  ))}
-                </button>
-              ) : null}
-              {productDescriptionHtml ? (
-                <div
-                  className="product-story-view__description"
-                  dangerouslySetInnerHTML={{ __html: productDescriptionHtml }}
-                />
-              ) : null}
-            </div>
-          ) : null}
         </div>
 
-        <div className="product-focus__caption">
-          <h1>{selectedProduct.name}</h1>
-          <span>{formatMoney(selectedVariant.price)}</span>
+        <div className="product-focus__details">
+          <div className="product-focus__caption">
+            <h1>{selectedProduct.name}</h1>
+            <span>{formatMoney(selectedVariant.price)}</span>
+          </div>
+          {productDescriptionHtml ? (
+            <div
+              className="product-focus__description"
+              dangerouslySetInnerHTML={{ __html: productDescriptionHtml }}
+            />
+          ) : null}
         </div>
       </section>
 
@@ -324,19 +295,7 @@ function Storefront({ products }: { products: Product[] }) {
   );
 }
 
-function getNextProductView(
-  currentView: ProductView,
-  availableViews: ProductView[],
-): ProductView {
-  const currentIndex = availableViews.indexOf(currentView);
-  return availableViews[(currentIndex + 1) % availableViews.length] ?? "front";
-}
 
-function getProductViewLabel(view: ProductView, productName: string): string {
-  return view === "story"
-    ? `Show design notes for ${productName}`
-    : `Show ${view} of ${productName}`;
-}
 
 function replaceGalleryUrl(productId: string, size: string) {
   const search = new URLSearchParams({ product: productId, size });
