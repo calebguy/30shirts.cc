@@ -638,7 +638,7 @@ select:focus-visible {
   flex: 1 1 auto;
   min-height: 0;
   margin: 0;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--text);
   padding: 0 1rem 1.5rem;
   overflow-y: auto;
   list-style: none;
@@ -650,7 +650,7 @@ select:focus-visible {
   min-width: 0;
   align-items: center;
   padding: 0.8rem 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--text);
 }
 
 .cart-item__artwork {
@@ -777,7 +777,7 @@ select:focus-visible {
   gap: 0.5rem 1rem;
   margin-top: auto;
   padding: 1rem;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--text);
   background: var(--surface);
 }
 
