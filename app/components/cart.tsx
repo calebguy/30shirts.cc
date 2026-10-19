@@ -481,7 +481,7 @@ export function CartPage() {
         </>
       ) : (
         <div className="empty-cart">
-          <p>No shirts</p>
+          <p>nothing</p>
         </div>
       )}
       </section>
