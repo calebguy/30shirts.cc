@@ -152,7 +152,6 @@ function Storefront({ products }: { products: Product[] }) {
                   ? `${selectedProduct.name} shirt and references; scroll horizontally to view images`
                   : `${selectedProduct.name} shirt image`
               }
-              data-has-more-images={hasReferences ? "" : undefined}
               tabIndex={hasReferences ? 0 : -1}
               key={selectedProduct.id}
             >
