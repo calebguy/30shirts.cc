@@ -4,6 +4,7 @@ import { useSearchParams } from "react-router";
 import { useCart } from "../components/cart";
 import {
   ReferenceCollage,
+  ReferenceSlides,
   ThumbnailBackground,
 } from "../components/reference-collage";
 import {
@@ -100,6 +101,7 @@ function Storefront({ products }: { products: Product[] }) {
   const selectedBackImage =
     selectedVariant.images[1] ?? selectedProduct.images[1];
   const selectedProductSoldOut = isSoldOut(selectedProduct);
+  const hasReferences = selectedProduct.images.length > 2;
   const productDescriptionHtml = selectedProduct.descriptionHtml.trim();
   const activeProductView =
     productView === "back" && selectedBackImage ? "back" : "front";
@@ -144,45 +146,64 @@ function Storefront({ products }: { products: Product[] }) {
       <div className="storefront__featured">
         <section className="product-focus" ref={focusRef} tabIndex={-1}>
           <div className="product-focus__viewer">
-            <ReferenceCollage images={selectedProduct.images} />
-
-            <button
-              className="product-focus__artwork"
-              type="button"
-              aria-label={`Show ${nextProductView} of ${selectedProduct.name}`}
-              data-side={activeProductView}
-              data-size={selectedVariant.size}
-              disabled={!selectedBackImage}
-              onClick={() => setProductView(nextProductView)}
+            <div
+              className="product-focus__gallery"
+              role="region"
+              aria-label={
+                hasReferences
+                  ? `${selectedProduct.name} shirt and references; scroll horizontally to view images`
+                  : `${selectedProduct.name} shirt image`
+              }
+              data-has-references={hasReferences ? "" : undefined}
+              tabIndex={hasReferences ? 0 : -1}
+              key={selectedProduct.id}
             >
-              <span className="shirt-viewer__views">
-                {selectedImage ? (
-                  <span className="shirt-viewer__face shirt-viewer__face--front">
-                    <img
-                      src={selectedImage.url}
-                      width={selectedImage.width}
-                      height={selectedImage.height}
-                      alt=""
-                      fetchPriority="high"
-                    />
-                  </span>
-                ) : null}
-                {selectedBackImage ? (
-                  <span className="shirt-viewer__face shirt-viewer__face--back">
-                    <img
-                      src={selectedBackImage.url}
-                      width={selectedBackImage.width}
-                      height={selectedBackImage.height}
-                      alt=""
-                    />
-                  </span>
-                ) : null}
-              </span>
+              <div className="product-focus__slide product-focus__slide--shirt">
+                <ReferenceCollage images={selectedProduct.images} />
 
-              {selectedProductSoldOut ? (
-                <span className="sold-out-badge">sold out</span>
-              ) : null}
-            </button>
+                <button
+                  className="product-focus__artwork"
+                  type="button"
+                  aria-label={`Show ${nextProductView} of ${selectedProduct.name}`}
+                  data-side={activeProductView}
+                  data-size={selectedVariant.size}
+                  disabled={!selectedBackImage}
+                  onClick={() => setProductView(nextProductView)}
+                >
+                  <span className="shirt-viewer__views">
+                    {selectedImage ? (
+                      <span className="shirt-viewer__face shirt-viewer__face--front">
+                        <img
+                          src={selectedImage.url}
+                          width={selectedImage.width}
+                          height={selectedImage.height}
+                          alt=""
+                          fetchPriority="high"
+                        />
+                      </span>
+                    ) : null}
+                    {selectedBackImage ? (
+                      <span className="shirt-viewer__face shirt-viewer__face--back">
+                        <img
+                          src={selectedBackImage.url}
+                          width={selectedBackImage.width}
+                          height={selectedBackImage.height}
+                          alt=""
+                        />
+                      </span>
+                    ) : null}
+                  </span>
+
+                  {selectedProductSoldOut ? (
+                    <span className="sold-out-badge">sold out</span>
+                  ) : null}
+                </button>
+              </div>
+              <ReferenceSlides
+                images={selectedProduct.images}
+                productName={selectedProduct.name}
+              />
+            </div>
           </div>
 
           <div className="product-focus__details">
