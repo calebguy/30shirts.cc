@@ -2,13 +2,10 @@ import { useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 
 import { useCart } from "../components/cart";
-import {
-  ReferenceCollage,
-  ReferenceSlides,
-  ThumbnailBackground,
-} from "../components/reference-collage";
+import { ReferenceSlides, ThumbnailBackground } from "../components/reference-images";
 import {
   formatMoney,
+  THUMBNAIL_IMAGE_INDEX,
   type Product,
   type ProductVariant,
 } from "../lib/fourthwall";
@@ -101,7 +98,8 @@ function Storefront({ products }: { products: Product[] }) {
   const selectedBackImage =
     selectedVariant.images[1] ?? selectedProduct.images[1];
   const selectedProductSoldOut = isSoldOut(selectedProduct);
-  const hasReferences = selectedProduct.images.length > 2;
+  const hasReferences =
+    selectedProduct.images.length > THUMBNAIL_IMAGE_INDEX + 1;
   const productDescriptionHtml = selectedProduct.descriptionHtml.trim();
   const activeProductView =
     productView === "back" && selectedBackImage ? "back" : "front";
@@ -154,12 +152,12 @@ function Storefront({ products }: { products: Product[] }) {
                   ? `${selectedProduct.name} shirt and references; scroll horizontally to view images`
                   : `${selectedProduct.name} shirt image`
               }
-              data-has-references={hasReferences ? "" : undefined}
+              data-has-more-images={hasReferences ? "" : undefined}
               tabIndex={hasReferences ? 0 : -1}
               key={selectedProduct.id}
             >
               <div className="product-focus__slide product-focus__slide--shirt">
-                <ReferenceCollage images={selectedProduct.images} />
+                <ThumbnailBackground images={selectedProduct.images} />
 
                 <button
                   className="product-focus__artwork"

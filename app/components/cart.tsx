@@ -7,7 +7,7 @@ import {
 } from "react";
 import { NavLink } from "react-router";
 
-import { ThumbnailBackground } from "./reference-collage";
+import { ThumbnailBackground } from "./reference-images";
 import {
   addCartItem,
   changeCartItemQuantity,

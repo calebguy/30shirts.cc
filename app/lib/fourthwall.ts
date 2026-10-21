@@ -29,6 +29,8 @@ export interface ProductImage {
   height: number;
 }
 
+export const THUMBNAIL_IMAGE_INDEX = 2;
+
 export interface ProductVariant {
   id: string;
   name: string;

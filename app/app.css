@@ -4,7 +4,6 @@
   --text: #171715;
   --muted: #6a6a66;
   --border: #deded9;
-  --image-surface: #efefec;
   --error: #a21b1b;
   --sold-out: #ff5900;
   --sold-out-text: #f4f3ee;
@@ -24,7 +23,6 @@
     --text: #f4f3ee;
     --muted: #a5a59e;
     --border: #3a3a36;
-    --image-surface: #1a1a18;
     --error: #ff8b8b;
     color-scheme: dark;
   }
@@ -157,11 +155,11 @@ select:focus-visible {
   scrollbar-width: thin;
 }
 
-.product-focus__gallery[data-has-references] {
+.product-focus__gallery[data-has-more-images] {
   --gallery-peek: clamp(2.5rem, 6vw, 5rem);
 }
 
-.product-focus__gallery[data-has-references]::after {
+.product-focus__gallery[data-has-more-images]::after {
   content: "";
   flex: 0 0 var(--gallery-peek);
 }
@@ -187,7 +185,6 @@ select:focus-visible {
 .product-focus__slide--reference {
   display: grid;
   place-items: center;
-  background: var(--image-surface);
   cursor: zoom-in;
 }
 
@@ -336,38 +333,6 @@ select:focus-visible {
 
 .product-focus__caption > span {
   flex: none;
-}
-
-.reference-collage {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: repeat(2, minmax(0, 1fr));
-  gap: 0.25rem;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.reference-collage img {
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  object-fit: cover;
-}
-
-.reference-collage img:only-child {
-  grid-row: 1 / -1;
-  grid-column: 1 / -1;
-}
-
-.reference-collage img:first-child:nth-last-child(2),
-.reference-collage img:first-child:nth-last-child(2) ~ img {
-  grid-row: 1 / -1;
-}
-
-.reference-collage img:first-child:nth-last-child(3) {
-  grid-row: 1 / -1;
 }
 
 .thumbnail-background {
@@ -528,7 +493,6 @@ select:focus-visible {
   place-items: center;
   overflow: hidden;
   border-radius: var(--border-radius);
-  background: var(--image-surface);
 }
 
 .archive-card__artwork > img {
@@ -623,7 +587,6 @@ select:focus-visible {
   min-height: 70svh;
   place-items: center;
   overflow: hidden;
-  background: var(--image-surface);
 }
 
 .product-page__image img {
@@ -813,7 +776,7 @@ select:focus-visible {
   border: 0;
   border-radius: var(--border-radius);
   color: inherit;
-  background: var(--image-surface);
+  background: transparent;
   cursor: pointer;
 }
 
