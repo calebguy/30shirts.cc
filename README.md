@@ -2,7 +2,9 @@
 
 One shirt published every day. React Router renders on Cloudflare Workers; Fourthwall provides the product catalog, cart, hosted checkout, payments, and fulfillment.
 
-On mobile, the selected shirt fills the first viewport, with its size selector and add button aligned at the bottom; scrolling reveals the archive below. Sizes wrap on narrow screens, the add and cart-close controls share the size buttons' padding, and enlarged shirt previews do not cause horizontal page scrolling.
+On mobile, the selected shirt fills the first viewport, with its size selector and add button aligned at the bottom; scrolling reveals the archive below. Sizes wrap on narrow screens, and enlarged shirt previews do not cause horizontal page scrolling. The add and cart-close controls use the size buttons' padding and typography at every viewport width.
+
+Reference images behind the selected shirt display at full opacity. Cart quantity-control borders match the text color, with space separating the size from the quantity selector.
 
 ## Local setup
 
