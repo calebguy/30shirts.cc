@@ -138,111 +138,113 @@ function Storefront({ products }: { products: Product[] }) {
 
   return (
     <main className="storefront">
-      <section className="product-focus" ref={focusRef} tabIndex={-1}>
-        <div className="product-focus__viewer">
-          {referenceImages.length > 0 ? (
-            <div className="product-focus__references" aria-hidden="true">
-              {referenceImages.map((image) => (
-                <img
-                  src={image.url}
-                  width={image.width}
-                  height={image.height}
-                  alt=""
-                  decoding="async"
-                  key={image.id}
-                />
+      <div className="storefront__featured">
+        <section className="product-focus" ref={focusRef} tabIndex={-1}>
+          <div className="product-focus__viewer">
+            {referenceImages.length > 0 ? (
+              <div className="product-focus__references" aria-hidden="true">
+                {referenceImages.map((image) => (
+                  <img
+                    src={image.url}
+                    width={image.width}
+                    height={image.height}
+                    alt=""
+                    decoding="async"
+                    key={image.id}
+                  />
+                ))}
+              </div>
+            ) : null}
+
+            <button
+              className="product-focus__artwork"
+              type="button"
+              aria-label={`Show ${nextProductView} of ${selectedProduct.name}`}
+              data-side={activeProductView}
+              data-size={selectedVariant.size}
+              disabled={!selectedBackImage}
+              onClick={() => setProductView(nextProductView)}
+            >
+              <span className="shirt-viewer__views">
+                {selectedImage ? (
+                  <span className="shirt-viewer__face shirt-viewer__face--front">
+                    <img
+                      src={selectedImage.url}
+                      width={selectedImage.width}
+                      height={selectedImage.height}
+                      alt=""
+                      fetchPriority="high"
+                    />
+                  </span>
+                ) : null}
+                {selectedBackImage ? (
+                  <span className="shirt-viewer__face shirt-viewer__face--back">
+                    <img
+                      src={selectedBackImage.url}
+                      width={selectedBackImage.width}
+                      height={selectedBackImage.height}
+                      alt=""
+                    />
+                  </span>
+                ) : null}
+              </span>
+
+              {selectedProductSoldOut ? (
+                <span className="sold-out-badge">sold out</span>
+              ) : null}
+            </button>
+          </div>
+
+          <div className="product-focus__details">
+            <div className="product-focus__caption">
+              <h1>{selectedProduct.name}</h1>
+              <span>{formatMoney(selectedVariant.price)}</span>
+            </div>
+            {productDescriptionHtml ? (
+              <div
+                className="product-focus__description"
+                dangerouslySetInnerHTML={{ __html: productDescriptionHtml }}
+              />
+            ) : null}
+          </div>
+        </section>
+
+        <aside
+          className="purchase-panel"
+          aria-label={`Purchase ${selectedProduct.name}`}
+        >
+          <fieldset className="size-picker">
+            <legend className="visually-hidden">Size</legend>
+            <div>
+              {displayedVariants.map((variant) => (
+                <button
+                  className={
+                    variant.id === selectedVariant.id ? "is-selected" : undefined
+                  }
+                  type="button"
+                  aria-pressed={variant.id === selectedVariant.id}
+                  disabled={!variant.available}
+                  key={variant.id}
+                  onClick={() => selectSize(variant)}
+                >
+                  {variant.size ?? variant.name}
+                </button>
               ))}
             </div>
-          ) : null}
+          </fieldset>
 
           <button
-            className="product-focus__artwork"
+            className="quick-add"
             type="button"
-            aria-label={`Show ${nextProductView} of ${selectedProduct.name}`}
-            data-side={activeProductView}
-            data-size={selectedVariant.size}
-            disabled={!selectedBackImage}
-            onClick={() => setProductView(nextProductView)}
+            disabled={
+              pending || selectedProductSoldOut || !selectedVariant.available
+            }
+            onClick={() => void addItem(selectedVariant.id)}
           >
-            <span className="shirt-viewer__views">
-              {selectedImage ? (
-                <span className="shirt-viewer__face shirt-viewer__face--front">
-                  <img
-                    src={selectedImage.url}
-                    width={selectedImage.width}
-                    height={selectedImage.height}
-                    alt=""
-                    fetchPriority="high"
-                  />
-                </span>
-              ) : null}
-              {selectedBackImage ? (
-                <span className="shirt-viewer__face shirt-viewer__face--back">
-                  <img
-                    src={selectedBackImage.url}
-                    width={selectedBackImage.width}
-                    height={selectedBackImage.height}
-                    alt=""
-                  />
-                </span>
-              ) : null}
-            </span>
-
-            {selectedProductSoldOut ? (
-              <span className="sold-out-badge">sold out</span>
-            ) : null}
+            <span aria-hidden="true">{pending ? "…" : "+"}</span>
           </button>
-        </div>
-
-        <div className="product-focus__details">
-          <div className="product-focus__caption">
-            <h1>{selectedProduct.name}</h1>
-            <span>{formatMoney(selectedVariant.price)}</span>
-          </div>
-          {productDescriptionHtml ? (
-            <div
-              className="product-focus__description"
-              dangerouslySetInnerHTML={{ __html: productDescriptionHtml }}
-            />
-          ) : null}
-        </div>
-      </section>
-
-      <aside
-        className="purchase-panel"
-        aria-label={`Purchase ${selectedProduct.name}`}
-      >
-        <fieldset className="size-picker">
-          <legend className="visually-hidden">Size</legend>
-          <div>
-            {displayedVariants.map((variant) => (
-              <button
-                className={
-                  variant.id === selectedVariant.id ? "is-selected" : undefined
-                }
-                type="button"
-                aria-pressed={variant.id === selectedVariant.id}
-                disabled={!variant.available}
-                key={variant.id}
-                onClick={() => selectSize(variant)}
-              >
-                {variant.size ?? variant.name}
-              </button>
-            ))}
-          </div>
-        </fieldset>
-
-        <button
-          className="quick-add"
-          type="button"
-          disabled={
-            pending || selectedProductSoldOut || !selectedVariant.available
-          }
-          onClick={() => void addItem(selectedVariant.id)}
-        >
-          <span aria-hidden="true">{pending ? "…" : "+"}</span>
-        </button>
-      </aside>
+        </aside>
+      </div>
 
       <section className="archive" aria-label="Shirt archive">
         <h2 className="visually-hidden">Shirt archive</h2>

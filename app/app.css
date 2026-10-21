@@ -126,6 +126,10 @@ select:focus-visible {
   background: var(--surface);
 }
 
+.storefront__featured {
+  display: contents;
+}
+
 .product-focus {
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
@@ -985,8 +989,16 @@ select:focus-visible {
     overflow-y: visible;
   }
 
+  .storefront__featured {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+  }
+
   .product-focus {
-    margin-top: 4rem;
+    flex: 1;
+    margin-top: 0;
+    padding-top: 4rem;
     scroll-margin-top: 5rem;
   }
 
@@ -996,13 +1008,14 @@ select:focus-visible {
   }
 
   .product-focus__viewer {
-    aspect-ratio: 1;
+    min-height: 12rem;
   }
 
   .purchase-panel {
     flex-direction: row;
     align-items: center;
     gap: 0.75rem;
+    padding: 0 0 1rem;
   }
 
   .size-picker {
@@ -1023,7 +1036,16 @@ select:focus-visible {
 
   .quick-add {
     flex: none;
-    width: 3.25rem;
+  }
+
+  .quick-add,
+  .icon-button {
+    width: auto;
+    height: auto;
+    min-width: 2.75rem;
+    padding: 0.2rem 0.3rem;
+    font-size: 1.35rem;
+    line-height: 1.25;
   }
 
   .archive {
@@ -1135,10 +1157,6 @@ select:focus-visible {
     grid-template-columns: 2rem 2.5rem 2rem;
   }
 
-  .product-focus__caption {
-    display: grid;
-    gap: 0.25rem;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
