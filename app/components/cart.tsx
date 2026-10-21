@@ -7,6 +7,7 @@ import {
 } from "react";
 import { NavLink } from "react-router";
 
+import { ThumbnailBackground } from "./reference-collage";
 import {
   addCartItem,
   changeCartItemQuantity,
@@ -364,6 +365,7 @@ function CartLineItem({
         disabled={!backImage}
         onClick={() => setIsBackVisible((current) => !current)}
       >
+        <ThumbnailBackground images={item.images} />
         <span className="shirt-viewer__views">
           {frontImage ? (
             <span className="shirt-viewer__face shirt-viewer__face--front">

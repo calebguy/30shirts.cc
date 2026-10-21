@@ -284,7 +284,7 @@ select:focus-visible {
   flex: none;
 }
 
-.product-focus__references {
+.reference-collage {
   position: absolute;
   inset: 0;
   display: grid;
@@ -295,25 +295,38 @@ select:focus-visible {
   pointer-events: none;
 }
 
-.product-focus__references img {
+.reference-collage img {
   width: 100%;
   height: 100%;
   min-height: 0;
   object-fit: cover;
 }
 
-.product-focus__references img:only-child {
+.reference-collage img:only-child {
   grid-row: 1 / -1;
   grid-column: 1 / -1;
 }
 
-.product-focus__references img:first-child:nth-last-child(2),
-.product-focus__references img:first-child:nth-last-child(2) ~ img {
+.reference-collage img:first-child:nth-last-child(2),
+.reference-collage img:first-child:nth-last-child(2) ~ img {
   grid-row: 1 / -1;
 }
 
-.product-focus__references img:first-child:nth-last-child(3) {
+.reference-collage img:first-child:nth-last-child(3) {
   grid-row: 1 / -1;
+}
+
+.thumbnail-background {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.thumbnail-background img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .product-focus__artwork {
@@ -460,12 +473,11 @@ select:focus-visible {
   aspect-ratio: 1;
   place-items: center;
   overflow: hidden;
-  /* border: 1px solid var(--text); */
   border-radius: var(--border-radius);
-  transition: opacity 140ms ease;
+  background: var(--image-surface);
 }
 
-.archive-card__artwork img {
+.archive-card__artwork > img {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -502,9 +514,6 @@ select:focus-visible {
   flex: none;
 }
 
-.archive-card:not(.is-selected) .archive-card__artwork {
-  opacity: 0.72;
-}
 
 .archive-card:is(.is-selected) .archive-card__artwork {
   border: 1px solid var(--text);
@@ -526,10 +535,9 @@ select:focus-visible {
 
   .archive-card:not(.is-selected):hover .archive-card__artwork {
     border: 1px dashed var(--text);
-    opacity: 1;
   }
 
-  .archive-card:hover .archive-card__artwork img {
+  .archive-card:hover .archive-card__artwork > img {
     transform: scale(calc(var(--shirt-scale) * 1.012));
   }
 }
@@ -751,7 +759,7 @@ select:focus-visible {
   border: 0;
   border-radius: var(--border-radius);
   color: inherit;
-  background: transparent;
+  background: var(--image-surface);
   cursor: pointer;
 }
 
@@ -759,7 +767,7 @@ select:focus-visible {
   cursor: default;
 }
 
-.cart-item__artwork img {
+.cart-item__artwork .shirt-viewer__face img {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -1150,8 +1158,7 @@ select:focus-visible {
   .product-focus__artwork img,
   .size-picker button,
   .quick-add,
-  .archive-card__artwork,
-  .archive-card__artwork img {
+  .archive-card__artwork > img {
     transition: none;
   }
 }

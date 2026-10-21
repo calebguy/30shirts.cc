@@ -3,6 +3,10 @@ import { useSearchParams } from "react-router";
 
 import { useCart } from "../components/cart";
 import {
+  ReferenceCollage,
+  ThumbnailBackground,
+} from "../components/reference-collage";
+import {
   formatMoney,
   type Product,
   type ProductVariant,
@@ -97,7 +101,6 @@ function Storefront({ products }: { products: Product[] }) {
     selectedVariant.images[1] ?? selectedProduct.images[1];
   const selectedProductSoldOut = isSoldOut(selectedProduct);
   const productDescriptionHtml = selectedProduct.descriptionHtml.trim();
-  const referenceImages = selectedProduct.images.slice(2, 6);
   const activeProductView =
     productView === "back" && selectedBackImage ? "back" : "front";
   const nextProductView =
@@ -141,20 +144,7 @@ function Storefront({ products }: { products: Product[] }) {
       <div className="storefront__featured">
         <section className="product-focus" ref={focusRef} tabIndex={-1}>
           <div className="product-focus__viewer">
-            {referenceImages.length > 0 ? (
-              <div className="product-focus__references" aria-hidden="true">
-                {referenceImages.map((image) => (
-                  <img
-                    src={image.url}
-                    width={image.width}
-                    height={image.height}
-                    alt=""
-                    decoding="async"
-                    key={image.id}
-                  />
-                ))}
-              </div>
-            ) : null}
+            <ReferenceCollage images={selectedProduct.images} />
 
             <button
               className="product-focus__artwork"
@@ -267,6 +257,10 @@ function Storefront({ products }: { products: Product[] }) {
                   className="archive-card__artwork"
                   data-size={selection.selectedSize}
                 >
+                  <ThumbnailBackground
+                    images={product.images}
+                    loading={index < 2 ? "eager" : "lazy"}
+                  />
                   {image ? (
                     <img
                       src={image.url}
