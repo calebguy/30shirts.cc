@@ -84,6 +84,8 @@ function Storefront({ products }: { products: Product[] }) {
     selectedSize: initialVariant.size ?? DEFAULT_SIZE,
   }));
   const [productView, setProductView] = useState<ProductView>("front");
+  const [activeSlide, setActiveSlide] = useState(0);
+  const galleryRef = useRef<HTMLDivElement>(null);
   const focusRef = useRef<HTMLElement>(null);
   const { addItem, pending } = useCart();
   const selectedProduct =
@@ -98,8 +100,11 @@ function Storefront({ products }: { products: Product[] }) {
   const selectedBackImage =
     selectedVariant.images[1] ?? selectedProduct.images[1];
   const selectedProductSoldOut = isSoldOut(selectedProduct);
-  const hasReferences =
-    selectedProduct.images.length > THUMBNAIL_IMAGE_INDEX + 1;
+  const slideCount = Math.max(
+    1,
+    selectedProduct.images.length - THUMBNAIL_IMAGE_INDEX,
+  );
+  const hasReferences = slideCount > 1;
   const productDescriptionHtml = selectedProduct.descriptionHtml.trim();
   const activeProductView =
     productView === "back" && selectedBackImage ? "back" : "front";
@@ -119,6 +124,7 @@ function Storefront({ products }: { products: Product[] }) {
 
     setSelection({ productId: product.id, selectedSize });
     replaceGalleryUrl(product.id, selectedSize);
+    setActiveSlide(0);
     setProductView("front");
 
     if (window.matchMedia("(max-width: 760px)").matches) {
@@ -139,12 +145,27 @@ function Storefront({ products }: { products: Product[] }) {
     replaceGalleryUrl(selectedProduct.id, selectedSize);
   }
 
+  function scrollToSlide(index: number) {
+    const gallery = galleryRef.current;
+    if (!gallery) {
+      return;
+    }
+
+    gallery.scrollTo({
+      left: index * gallery.clientWidth,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+    });
+  }
+
   return (
     <main className="storefront">
       <div className="storefront__featured">
         <section className="product-focus" ref={focusRef} tabIndex={-1}>
           <div className="product-focus__viewer">
             <div
+              ref={galleryRef}
               className="product-focus__gallery"
               role="region"
               aria-label={
@@ -153,6 +174,15 @@ function Storefront({ products }: { products: Product[] }) {
                   : `${selectedProduct.name} shirt image`
               }
               tabIndex={hasReferences ? 0 : -1}
+              onScroll={(event) => {
+                const gallery = event.currentTarget;
+                setActiveSlide(
+                  Math.min(
+                    slideCount - 1,
+                    Math.round(gallery.scrollLeft / gallery.clientWidth),
+                  ),
+                );
+              }}
               key={selectedProduct.id}
             >
               <div className="product-focus__slide product-focus__slide--shirt">
@@ -201,6 +231,40 @@ function Storefront({ products }: { products: Product[] }) {
                 productName={selectedProduct.name}
               />
             </div>
+            {hasReferences ? (
+              <div className="product-focus__navigation">
+                <button
+                  className="product-focus__arrow product-focus__arrow--previous"
+                  type="button"
+                  aria-label={`Previous image of ${selectedProduct.name}`}
+                  disabled={activeSlide === 0}
+                  onClick={() => scrollToSlide(activeSlide - 1)}
+                >
+                  <span aria-hidden="true">←</span>
+                </button>
+                <button
+                  className="product-focus__arrow product-focus__arrow--next"
+                  type="button"
+                  aria-label={`Next image of ${selectedProduct.name}`}
+                  disabled={activeSlide === slideCount - 1}
+                  onClick={() => scrollToSlide(activeSlide + 1)}
+                >
+                  <span aria-hidden="true">→</span>
+                </button>
+                <span className="product-focus__progress" aria-hidden="true">
+                  <span
+                    className="product-focus__progress-thumb"
+                    style={{
+                      width: `${100 / slideCount}%`,
+                      transform: `translateX(${activeSlide * 100}%)`,
+                    }}
+                  />
+                </span>
+                <span className="visually-hidden" aria-live="polite">
+                  Image {activeSlide + 1} of {slideCount}
+                </span>
+              </div>
+            ) : null}
           </div>
 
           <div className="product-focus__details">
@@ -261,6 +325,10 @@ function Storefront({ products }: { products: Product[] }) {
             const image = product.images[0];
             const isSelected = product.id === selectedProduct.id;
             const soldOut = isSoldOut(product);
+            const previewVariant =
+              getDisplayedVariants(product).find(
+                (variant) => variant.size === selection.selectedSize,
+              ) ?? getInitialVariant(product);
 
             return (
               <button
@@ -294,7 +362,7 @@ function Storefront({ products }: { products: Product[] }) {
                 </span>
                 <span className="archive-card__caption">
                   <strong>{product.name}</strong>
-                  <span>{formatMoney(product.price)}</span>
+                  <span>{formatMoney(previewVariant.price)}</span>
                 </span>
               </button>
             );
@@ -308,8 +376,6 @@ function Storefront({ products }: { products: Product[] }) {
     </main>
   );
 }
-
-
 
 function replaceGalleryUrl(productId: string, size: string) {
   const search = new URLSearchParams({ product: productId, size });
