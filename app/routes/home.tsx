@@ -2,6 +2,8 @@ import { useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 
 import { useCart } from "../components/cart";
+import { LeftArrowIcon } from "../components/icons/left-arrow";
+import { RightArrowIcon } from "../components/icons/right-arrow";
 import { ReferenceSlides, ThumbnailBackground } from "../components/reference-images";
 import {
   formatMoney,
@@ -240,7 +242,7 @@ function Storefront({ products }: { products: Product[] }) {
                   disabled={activeSlide === 0}
                   onClick={() => scrollToSlide(activeSlide - 1)}
                 >
-                  <span aria-hidden="true">←</span>
+                  <LeftArrowIcon />
                 </button>
                 <button
                   className="product-focus__arrow product-focus__arrow--next"
@@ -249,7 +251,7 @@ function Storefront({ products }: { products: Product[] }) {
                   disabled={activeSlide === slideCount - 1}
                   onClick={() => scrollToSlide(activeSlide + 1)}
                 >
-                  <span aria-hidden="true">→</span>
+                  <RightArrowIcon />
                 </button>
                 <span className="product-focus__progress" aria-hidden="true">
                   <span
@@ -307,13 +309,18 @@ function Storefront({ products }: { products: Product[] }) {
 
           <button
             className="quick-add"
+            aria-label={
+              pending
+                ? "Adding to cart"
+                : `Add ${selectedProduct.name} in size ${selectedVariant.size ?? selectedVariant.name} to cart`
+            }
             type="button"
             disabled={
               pending || selectedProductSoldOut || !selectedVariant.available
             }
             onClick={() => void addItem(selectedVariant.id)}
           >
-            <span aria-hidden="true">{pending ? "…" : "+"}</span>
+            <span aria-hidden="true">{pending ? "…" : "add"}</span>
           </button>
         </aside>
       </div>

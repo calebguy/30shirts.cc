@@ -7,6 +7,9 @@ import {
 } from "react";
 import { NavLink } from "react-router";
 
+import { MinusIcon } from "./icons/minus";
+import { PlusIcon } from "./icons/plus";
+import { TrashIcon } from "./icons/trash";
 import { ThumbnailBackground } from "./reference-images";
 import {
   addCartItem,
@@ -296,9 +299,11 @@ function CartQuantityControl({
         title={item.quantity === 1 ? "Remove" : "Decrease quantity"}
         disabled={pending}
         onPointerDown={(event) => event.preventDefault()}
-        onClick={() => stepQuantity(-1)}
+        onClick={() =>
+          item.quantity === 1 ? void submitQuantity(0) : stepQuantity(-1)
+        }
       >
-        −
+        {item.quantity === 1 ? <TrashIcon /> : <MinusIcon />}
       </button>
       <input
         type="number"
@@ -329,7 +334,7 @@ function CartQuantityControl({
         onPointerDown={(event) => event.preventDefault()}
         onClick={() => stepQuantity(1)}
       >
-        +
+        <PlusIcon />
       </button>
     </div>
   );
