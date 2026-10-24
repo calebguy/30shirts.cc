@@ -465,8 +465,7 @@ select:focus-visible {
 }
 
 .size-picker button,
-.quick-add,
-.icon-button {
+.quick-add {
   min-width: 2.75rem;
   padding: 0.2rem 0.3rem;
   font-size: clamp(1.3rem, 2.2vw, 2rem);
@@ -546,6 +545,14 @@ select:focus-visible {
   border-radius: var(--border-radius);
 }
 
+.archive-card__artwork::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid transparent;
+  pointer-events: none;
+}
+
 .archive-card__artwork > img {
   position: absolute;
   inset: 0;
@@ -584,8 +591,8 @@ select:focus-visible {
 }
 
 
-.archive-card:is(.is-selected) .archive-card__artwork {
-  border: 1px solid var(--text);
+.archive-card:is(.is-selected) .archive-card__artwork::after {
+  border-color: var(--text);
 }
 
 .empty-catalog {
@@ -602,13 +609,11 @@ select:focus-visible {
     border-style: dashed;
   }
 
-  .archive-card:not(.is-selected):hover .archive-card__artwork {
-    border: 1px dashed var(--text);
+  .archive-card:not(.is-selected):hover .archive-card__artwork::after {
+    border-color: var(--text);
+    border-style: dashed;
   }
 
-  /* .archive-card:hover .archive-card__artwork > img {
-    transform: scale(calc(var(--shirt-scale) * 1.5));
-  } */
 }
 
 .product-page {
@@ -752,8 +757,8 @@ select:focus-visible {
   display: flex;
   flex: 0 0 auto;
   justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem;
+  align-items: flex-start;
+  padding: 1.5rem;
 }
 
 
@@ -778,15 +783,17 @@ select:focus-visible {
   content: ")";
 }
 
-.icon-button {
+.cart-page__back {
   display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
   place-items: center;
-  border: 1px solid var(--text);
-  border-radius: var(--border-radius);
   color: var(--text);
-  background: transparent;
-  cursor: pointer;
-  font-weight: 400;
+}
+
+.cart-page__back svg {
+  width: 2rem;
+  height: 2rem;
 }
 
 .cart-error {
@@ -919,7 +926,6 @@ select:focus-visible {
 .cart-item__quantity input {
   min-width: 0;
   appearance: textfield;
-  font-weight: 600;
 }
 
 .cart-item__quantity input::-webkit-inner-spin-button,
@@ -1111,8 +1117,7 @@ select:focus-visible {
   }
 
   .size-picker button,
-  .quick-add,
-  .icon-button {
+  .quick-add {
     font-size: 1.35rem;
   }
 
@@ -1185,13 +1190,9 @@ select:focus-visible {
     padding: 0;
   }
 
-  .cart-page__header,
-  .cart-page__footer {
-    padding: 1rem;
-  }
-
   .cart-page__footer {
     grid-template-columns: minmax(0, 1fr) auto;
+    padding: 1rem;
   }
 
   .cart-page__actions {

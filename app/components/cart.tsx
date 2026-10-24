@@ -7,6 +7,7 @@ import {
 } from "react";
 import { NavLink } from "react-router";
 
+import { LeftArrowIcon } from "./icons/left-arrow";
 import { MinusIcon } from "./icons/minus";
 import { PlusIcon } from "./icons/plus";
 import { TrashIcon } from "./icons/trash";
@@ -436,18 +437,18 @@ export function CartPage() {
   return (
     <main className="cart-page">
       <section className="cart-panel" aria-label="Shopping cart">
-      <header className="cart-page__header">
-        <h1>
-          Cart<span aria-label={`${itemCount} items`}>{itemCount}</span>
-        </h1>
-        <NavLink
-          className="icon-button"
-          aria-label="Return to the storefront"
-          to="/"
-        >
-          ×
-        </NavLink>
-      </header>
+        <header className="cart-page__header">
+          <NavLink
+            className="cart-page__back"
+            aria-label="Return to the storefront"
+            to="/"
+          >
+            <LeftArrowIcon />
+          </NavLink>
+          <h1>
+            Cart<span aria-label={`${itemCount} items`}>{itemCount}</span>
+          </h1>
+        </header>
 
       {error ? <p className="cart-error">{error}</p> : null}
 
