@@ -310,25 +310,25 @@ function Storefront({ products }: { products: Product[] }) {
             </div>
           </fieldset>
 
-          {selectedVariantUnavailable ? null : (
-            <button
-              className="quick-add"
-              aria-label={
-                pending
-                  ? "Adding to cart"
+          <button
+            className="quick-add"
+            aria-label={
+              pending
+                ? "Adding to cart"
+                : selectedVariantUnavailable
+                  ? `${selectedProduct.name} in size ${selectedVariant.size ?? selectedVariant.name} is sold out`
                   : `Add ${selectedProduct.name} in size ${selectedVariant.size ?? selectedVariant.name} to cart`
-              }
-              type="button"
-              disabled={pending}
-              onClick={() => void addItem(selectedVariant.id)}
-            >
-              {pending ? (
-                <span className="quick-add__spinner" aria-hidden="true" />
-              ) : (
-                <PlusIcon />
-              )}
-            </button>
-          )}
+            }
+            type="button"
+            disabled={pending || selectedVariantUnavailable}
+            onClick={() => void addItem(selectedVariant.id)}
+          >
+            {pending ? (
+              <span className="quick-add__spinner" aria-hidden="true" />
+            ) : (
+              <PlusIcon />
+            )}
+          </button>
         </aside>
       </div>
 
