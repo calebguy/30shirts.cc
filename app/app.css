@@ -464,8 +464,7 @@ select:focus-visible {
   gap: 0.5rem;
 }
 
-.size-picker button,
-.quick-add {
+.size-picker button {
   min-width: 2.75rem;
   padding: 0.2rem 0.3rem;
   font-size: clamp(1.3rem, 2.2vw, 2rem);
@@ -495,12 +494,17 @@ select:focus-visible {
 
 .quick-add {
   display: grid;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.75rem 1rem;
   place-items: center;
   border: 1px solid var(--text);
   border-radius: var(--border-radius);
-  color: var(--text);
-  background: transparent;
+  color: var(--surface);
+  background: var(--text);
   cursor: pointer;
+  text-transform: uppercase;
+  white-space: nowrap;
   transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
@@ -510,7 +514,8 @@ select:focus-visible {
 
 .quick-add:disabled {
   cursor: not-allowed;
-  opacity: 0.2;
+  border-color: var(--muted);
+  background: var(--muted);
 }
 
 .archive {
@@ -893,7 +898,7 @@ select:focus-visible {
   display: grid;
   grid-template-columns: 2.5rem 3rem 2.5rem;
   overflow: hidden;
-  border: 1px solid var(--border);
+  border: 1px solid var(--text);
   border-radius: var(--border-radius);
   color: var(--text);
   font-size: var(--type-display);
@@ -985,12 +990,15 @@ select:focus-visible {
   place-items: center;
   border: 1px solid var(--text);
   border-radius: var(--border-radius);
-  font-size: var(--type-caption);
-  font-weight: 400;
-  letter-spacing: -0.02em;
   text-align: center;
 }
 
+.quick-add,
+.cart-page__actions > .primary-button {
+  font-size: var(--type-caption);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
 
 .empty-cart {
   display: grid;
@@ -1114,10 +1122,12 @@ select:focus-visible {
 
   .quick-add {
     flex: none;
+    width: auto;
+    min-height: 2.75rem;
+    padding: 0.65rem 0.75rem;
   }
 
-  .size-picker button,
-  .quick-add {
+  .size-picker button {
     font-size: 1.35rem;
   }
 

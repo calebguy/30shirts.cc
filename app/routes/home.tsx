@@ -102,6 +102,8 @@ function Storefront({ products }: { products: Product[] }) {
   const selectedBackImage =
     selectedVariant.images[1] ?? selectedProduct.images[1];
   const selectedProductSoldOut = isSoldOut(selectedProduct);
+  const selectedVariantUnavailable =
+    selectedProductSoldOut || !selectedVariant.available;
   const slideCount = Math.max(
     1,
     selectedProduct.images.length - THUMBNAIL_IMAGE_INDEX,
@@ -312,15 +314,15 @@ function Storefront({ products }: { products: Product[] }) {
             aria-label={
               pending
                 ? "Adding to cart"
-                : `Add ${selectedProduct.name} in size ${selectedVariant.size ?? selectedVariant.name} to cart`
+                : selectedVariantUnavailable
+                  ? `${selectedProduct.name} in size ${selectedVariant.size ?? selectedVariant.name} is sold out`
+                  : `Add ${selectedProduct.name} in size ${selectedVariant.size ?? selectedVariant.name} to cart`
             }
             type="button"
-            disabled={
-              pending || selectedProductSoldOut || !selectedVariant.available
-            }
+            disabled={pending || selectedVariantUnavailable}
             onClick={() => void addItem(selectedVariant.id)}
           >
-            <span aria-hidden="true">{pending ? "…" : "add"}</span>
+            {pending ? "Adding…" : selectedVariantUnavailable ? "Sold out" : "Add to cart"}
           </button>
         </aside>
       </div>
