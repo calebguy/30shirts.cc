@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router";
 
 import { useCart } from "../components/cart";
 import { LeftArrowIcon } from "../components/icons/left-arrow";
+import { PlusIcon } from "../components/icons/plus";
 import { RightArrowIcon } from "../components/icons/right-arrow";
 import { ReferenceSlides, ThumbnailBackground } from "../components/reference-images";
 import {
@@ -322,7 +323,13 @@ function Storefront({ products }: { products: Product[] }) {
             disabled={pending || selectedVariantUnavailable}
             onClick={() => void addItem(selectedVariant.id)}
           >
-            {pending ? "Adding…" : selectedVariantUnavailable ? "Sold out" : "Add to cart"}
+            {pending ? (
+              "Adding…"
+            ) : selectedVariantUnavailable ? (
+              "Sold out"
+            ) : (
+              <PlusIcon />
+            )}
           </button>
         </aside>
       </div>
