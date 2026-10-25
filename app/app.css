@@ -1108,8 +1108,6 @@ select:focus-visible {
   .product-focus {
     flex: 1;
     margin-top: 0;
-    padding-top: 4rem;
-    scroll-margin-top: 5rem;
   }
 
   .product-focus__description {
