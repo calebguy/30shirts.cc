@@ -322,7 +322,11 @@ function Storefront({ products }: { products: Product[] }) {
               disabled={pending}
               onClick={() => void addItem(selectedVariant.id)}
             >
-              {pending ? "Adding…" : <PlusIcon />}
+              {pending ? (
+                <span className="quick-add__spinner" aria-hidden="true" />
+              ) : (
+                <PlusIcon />
+              )}
             </button>
           )}
         </aside>

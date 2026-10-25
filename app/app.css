@@ -523,6 +523,21 @@ select:focus-visible {
   background: var(--muted);
 }
 
+.quick-add__spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: quick-add-spin 700ms linear infinite;
+}
+
+@keyframes quick-add-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
 .archive {
   min-width: 0;
   overflow-y: auto;
@@ -1251,5 +1266,9 @@ select:focus-visible {
   .quick-add,
   .archive-card__artwork > img {
     transition: none;
+  }
+
+  .quick-add__spinner {
+    animation: none;
   }
 }
