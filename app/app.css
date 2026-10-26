@@ -810,6 +810,7 @@ select:focus-visible {
 
 .cart-page__back {
   display: grid;
+  margin-left: -0.5rem;
   width: 2.75rem;
   height: 2.75rem;
   place-items: center;
