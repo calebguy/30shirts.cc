@@ -239,7 +239,7 @@ select:focus-visible {
 
 .product-focus__slide--reference {
   display: grid;
-  padding-inline: 4rem;
+  padding-inline: 3rem;
   place-items: center;
   cursor: zoom-in;
 }
@@ -1116,6 +1116,7 @@ select:focus-visible {
   }
 
   .product-focus__viewer {
+    margin-inline: -1rem;
     min-height: 12rem;
   }
 
