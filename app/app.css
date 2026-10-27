@@ -1103,7 +1103,7 @@ select:focus-visible {
   .storefront__featured {
     display: flex;
     flex-direction: column;
-    min-height: 100dvh;
+    min-height: 100svh;
   }
 
   .product-focus {
