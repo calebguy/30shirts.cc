@@ -1189,34 +1189,66 @@ select:focus-visible {
   }
 
   .cart-item {
-    grid-template-columns: 4.5rem minmax(0, 1fr) auto auto;
-    grid-template-rows: 1fr;
-    column-gap: 0.75rem;
-    padding: 1rem 0;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto auto;
+    gap: 0.75rem 1rem;
+    align-items: center;
+    padding: 1rem 0 1.5rem;
   }
 
   .cart-item__artwork {
+    grid-column: 1 / -1;
     grid-row: 1;
+    background: var(--border);
+  }
+
+  .cart-item__artwork .thumbnail-background {
+    display: none;
+  }
+
+  .cart-item__artwork[data-size="S"] {
+    --shirt-scale: 0.75;
+  }
+
+  .cart-item__artwork[data-size="M"] {
+    --shirt-scale: 0.85;
+  }
+
+  .cart-item__artwork[data-size="L"] {
+    --shirt-scale: 0.95;
+  }
+
+  .cart-item__artwork[data-size="XL"] {
+    --shirt-scale: 1.05;
+  }
+
+  .cart-item__artwork[data-size="2XL"] {
+    --shirt-scale: 1.15;
   }
 
   .cart-item__details {
-    grid-column: 2;
+    grid-column: 1;
+    grid-row: 2;
     padding: 0;
   }
 
   .cart-item__meta {
-    grid-column: 3;
-    grid-row: 1;
-    grid-template-columns: 2.5rem 8rem;
-    column-gap: 0.75rem;
-    justify-self: end;
+    display: flex;
+    grid-column: 1 / -1;
+    grid-row: 3;
+    justify-content: space-between;
+    width: 100%;
     padding: 0;
   }
 
+  .cart-item__meta > span {
+    justify-self: auto;
+  }
+
   .cart-item__total {
-    grid-column: 4;
-    grid-row: 1;
-    align-self: center;
+    grid-column: 2;
+    grid-row: 2;
+    align-self: baseline;
     padding: 0;
   }
 
@@ -1236,27 +1268,6 @@ select:focus-visible {
   }
 }
 
-@media (max-width: 420px) {
-  .cart-items {
-    padding-right: 0.75rem;
-    padding-left: 0.75rem;
-  }
-
-  .cart-item {
-    grid-template-columns: 3.5rem minmax(0, 1fr) auto auto;
-    column-gap: 0.4rem;
-  }
-
-  .cart-item__meta {
-    grid-template-columns: 2.25rem 6.5rem;
-    column-gap: 0.5rem;
-  }
-
-  .cart-item__quantity {
-    grid-template-columns: 2rem 2.5rem 2rem;
-  }
-
-}
 
 @media (prefers-reduced-motion: reduce) {
   .cart-trigger,
