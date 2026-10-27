@@ -1076,6 +1076,16 @@ select:focus-visible {
   font-size: 0.75rem;
 }
 
+@media (min-width: 761px) {
+  .storefront {
+    padding-right: 0;
+  }
+
+  .archive-card__caption {
+    padding-right: 1rem;
+  }
+}
+
 @media (max-width: 1024px) {
   .storefront {
     grid-template-columns: minmax(0, 1fr) max-content minmax(15rem, 25vw);
