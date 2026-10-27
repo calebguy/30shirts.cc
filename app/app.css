@@ -1206,26 +1206,6 @@ select:focus-visible {
     display: none;
   }
 
-  .cart-item__artwork[data-size="S"] {
-    --shirt-scale: 0.75;
-  }
-
-  .cart-item__artwork[data-size="M"] {
-    --shirt-scale: 0.85;
-  }
-
-  .cart-item__artwork[data-size="L"] {
-    --shirt-scale: 0.95;
-  }
-
-  .cart-item__artwork[data-size="XL"] {
-    --shirt-scale: 1.05;
-  }
-
-  .cart-item__artwork[data-size="2XL"] {
-    --shirt-scale: 1.15;
-  }
-
   .cart-item__details {
     grid-column: 1;
     grid-row: 2;
