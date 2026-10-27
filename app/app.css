@@ -114,7 +114,7 @@ select:focus-visible {
   display: grid;
   grid-template-columns:
     minmax(0, 1fr)
-    clamp(10rem, 14vw, 13rem)
+    max-content
     clamp(16rem, 25vw, 23rem);
   gap: clamp(0.75rem, 1.5vw, 1.5rem);
   height: 100dvh;
@@ -1078,7 +1078,7 @@ select:focus-visible {
 
 @media (max-width: 1024px) {
   .storefront {
-    grid-template-columns: minmax(0, 1fr) 9rem minmax(15rem, 25vw);
+    grid-template-columns: minmax(0, 1fr) max-content minmax(15rem, 25vw);
   }
 
   .archive-card__caption {
