@@ -487,9 +487,9 @@ select:focus-visible {
 
 .size-picker button {
   min-width: 2.75rem;
-  padding: 0.2rem 0.3rem;
+  padding: 0.5rem 0.3rem 0.1rem;
   font-size: var(--type-display);
-  line-height: 1.25;
+  line-height: 1;
 }
 
 .size-picker button {
