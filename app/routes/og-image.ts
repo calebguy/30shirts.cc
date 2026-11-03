@@ -48,13 +48,22 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   }
 }
 
+function fetchStaticAsset(path: string, request: Request): Promise<Response> {
+  return env.ASSETS.fetch(
+    new Request(new URL(path, request.url), {
+      method: "GET",
+      signal: request.signal,
+    }),
+  );
+}
+
 async function renderOgImage(
   request: Request,
   productName: string,
   productImageUrl: string,
 ): Promise<Response> {
   const [templateResponse, productImageResponse] = await Promise.all([
-    fetch(new URL(TEMPLATE_PATH, request.url), { signal: request.signal }),
+    fetchStaticAsset(TEMPLATE_PATH, request),
     fetch(productImageUrl, {
       headers: { Accept: "image/*" },
       signal: request.signal,
@@ -62,7 +71,9 @@ async function renderOgImage(
   ]);
 
   if (!templateResponse.ok || !templateResponse.body) {
-    throw new Error("The OG image template could not be loaded.");
+    throw new Error(
+      `The OG image template could not be loaded (${templateResponse.status}).`,
+    );
   }
   if (!productImageResponse.ok || !productImageResponse.body) {
     throw new Error("The Fourthwall product image could not be loaded.");
@@ -101,9 +112,7 @@ async function renderOgImage(
 }
 
 async function serveFallbackImage(request: Request): Promise<Response> {
-  const response = await fetch(new URL(FALLBACK_PATH, request.url), {
-    signal: request.signal,
-  });
+  const response = await fetchStaticAsset(FALLBACK_PATH, request);
   if (!response.ok || !response.body) {
     return new Response("OG image unavailable.", {
       status: 503,
