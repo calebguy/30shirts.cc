@@ -6,12 +6,12 @@ import type { Route } from "./+types/og-image";
 const TEMPLATE_PATH = "/og-template.png";
 const FALLBACK_PATH = "/og-fallback.png";
 const FONT_URL = "https://30shirts.cc/fonts/texgyreheros-regular.otf";
-const PRODUCT_IMAGE_SIZE = 500;
-const PRODUCT_IMAGE_LEFT = 640;
-const PRODUCT_IMAGE_TOP = 55;
+const PRODUCT_IMAGE_SIZE = 600;
+const PRODUCT_IMAGE_LEFT = 590;
+const PRODUCT_IMAGE_TOP = 15;
 const DATE_FONT_SIZE = 180;
 const DATE_LEFT = 120;
-const DATE_TOP = 180;
+const DATE_TOP = 225;
 const IMMUTABLE_CACHE = "public, max-age=31536000, immutable";
 const FALLBACK_CACHE = "public, max-age=300, stale-while-revalidate=86400";
 
