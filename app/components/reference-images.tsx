@@ -1,6 +1,9 @@
-import { THUMBNAIL_IMAGE_INDEX, type ProductImage } from "../lib/fourthwall";
-
-const FIRST_REFERENCE_IMAGE_INDEX = THUMBNAIL_IMAGE_INDEX + 1;
+import {
+  DARK_THUMBNAIL_IMAGE_INDEX,
+  FIRST_REFERENCE_IMAGE_INDEX,
+  LIGHT_THUMBNAIL_IMAGE_INDEX,
+  type ProductImage,
+} from "../lib/fourthwall";
 
 interface ThumbnailBackgroundProps {
   images: readonly ProductImage[];
@@ -11,21 +14,31 @@ export function ThumbnailBackground({
   images,
   loading,
 }: ThumbnailBackgroundProps) {
-  const image = images[THUMBNAIL_IMAGE_INDEX];
-  if (!image) {
+  const lightImage = images[LIGHT_THUMBNAIL_IMAGE_INDEX];
+  const darkImage = images[DARK_THUMBNAIL_IMAGE_INDEX];
+  const fallbackImage = lightImage ?? darkImage;
+  if (!fallbackImage) {
     return null;
   }
 
   return (
     <span className="thumbnail-background" aria-hidden="true">
-      <img
-        src={image.url}
-        width={image.width}
-        height={image.height}
-        alt=""
-        decoding="async"
-        loading={loading}
-      />
+      <picture>
+        {darkImage ? (
+          <source
+            media="(prefers-color-scheme: dark)"
+            srcSet={darkImage.url}
+          />
+        ) : null}
+        <img
+          src={fallbackImage.url}
+          width={fallbackImage.width}
+          height={fallbackImage.height}
+          alt=""
+          decoding="async"
+          loading={loading}
+        />
+      </picture>
     </span>
   );
 }

@@ -7,8 +7,8 @@ import { PlusIcon } from "../components/icons/plus";
 import { RightArrowIcon } from "../components/icons/right-arrow";
 import { ReferenceSlides, ThumbnailBackground } from "../components/reference-images";
 import {
+  FIRST_REFERENCE_IMAGE_INDEX,
   formatMoney,
-  THUMBNAIL_IMAGE_INDEX,
   type Product,
   type ProductVariant,
 } from "../lib/fourthwall";
@@ -105,10 +105,12 @@ function Storefront({ products }: { products: Product[] }) {
   const selectedProductSoldOut = isSoldOut(selectedProduct);
   const selectedVariantUnavailable =
     selectedProductSoldOut || !selectedVariant.available;
-  const slideCount = Math.max(
-    1,
-    selectedProduct.images.length - THUMBNAIL_IMAGE_INDEX,
-  );
+  const slideCount =
+    1 +
+    Math.max(
+      0,
+      selectedProduct.images.length - FIRST_REFERENCE_IMAGE_INDEX,
+    );
   const hasReferences = slideCount > 1;
   const productDescriptionHtml = selectedProduct.descriptionHtml.trim();
   const activeProductView =

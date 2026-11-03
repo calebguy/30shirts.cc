@@ -29,7 +29,9 @@ export interface ProductImage {
   height: number;
 }
 
-export const THUMBNAIL_IMAGE_INDEX = 2;
+export const LIGHT_THUMBNAIL_IMAGE_INDEX = 2;
+export const DARK_THUMBNAIL_IMAGE_INDEX = 3;
+export const FIRST_REFERENCE_IMAGE_INDEX = 4;
 
 export interface ProductVariant {
   id: string;
