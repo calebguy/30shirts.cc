@@ -19,6 +19,13 @@
 		"FOURTHWALL_CHECKOUT_DOMAIN": "30shirtscc-shop.fourthwall.com",
 		"FOURTHWALL_CURRENCY": "USD"
 	},
+	"images": {
+		"binding": "IMAGES",
+		"remote": true
+	},
+	"cache": {
+		"enabled": true
+	},
 	"observability": {
 		"enabled": true,
 		"head_sampling_rate": 1

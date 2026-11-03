@@ -18,12 +18,18 @@ import {
 } from "../lib/fourthwall.server";
 import type { Route } from "./+types/home";
 
-interface ReadyStorefront {
+interface SocialMetadata {
+  canonicalUrl: string;
+  ogImageAlt: string;
+  ogImageUrl: string;
+}
+
+interface ReadyStorefront extends SocialMetadata {
   state: "ready";
   products: Product[];
 }
 
-interface UnconfiguredStorefront {
+interface UnconfiguredStorefront extends SocialMetadata {
   state: "unconfigured";
 }
 
@@ -34,17 +40,47 @@ const DEFAULT_SIZE = "L";
 
 type ProductView = "front" | "back";
 
-export function meta() {
+export function meta({ loaderData }: Route.MetaArgs) {
+  const title = "30shirts.cc";
+  const description = "One shirt for every day of November.";
+  const canonicalUrl = loaderData?.canonicalUrl ?? "https://30shirts.cc/";
+  const ogImageUrl =
+    loaderData?.ogImageUrl ?? "https://30shirts.cc/og-fallback.png";
+  const ogImageAlt = loaderData?.ogImageAlt ?? "30shirts.cc";
+
   return [
-    { title: "30shirts.cc" },
-    { name: "description", content: "One shirt for every day of November." },
+    { title },
+    { name: "description", content: description },
+    { property: "og:type", content: "website" },
+    { property: "og:site_name", content: title },
+    { property: "og:title", content: title },
+    { property: "og:description", content: description },
+    { property: "og:url", content: canonicalUrl },
+    { property: "og:image", content: ogImageUrl },
+    { property: "og:image:secure_url", content: ogImageUrl },
+    { property: "og:image:type", content: "image/png" },
+    { property: "og:image:width", content: "1200" },
+    { property: "og:image:height", content: "630" },
+    { property: "og:image:alt", content: ogImageAlt },
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:title", content: title },
+    { name: "twitter:description", content: description },
+    { name: "twitter:image", content: ogImageUrl },
+    { name: "twitter:image:alt", content: ogImageAlt },
   ];
 }
 
 export async function loader({ request }: Route.LoaderArgs): Promise<LoaderData> {
+  const canonicalUrl = new URL("/", request.url).href;
+  const fallbackImageUrl = new URL("/og-fallback.png", request.url).href;
   const storefront = getStorefrontConfig();
   if (!storefront) {
-    return { state: "unconfigured" };
+    return {
+      state: "unconfigured",
+      canonicalUrl,
+      ogImageAlt: "30shirts.cc",
+      ogImageUrl: fallbackImageUrl,
+    };
   }
 
   const products = await listProducts({
@@ -52,8 +88,22 @@ export async function loader({ request }: Route.LoaderArgs): Promise<LoaderData>
     currency: storefront.currency,
     signal: request.signal,
   });
+  const latestProduct = products[0];
 
-  return { state: "ready", products };
+  return {
+    state: "ready",
+    products,
+    canonicalUrl,
+    ogImageAlt: latestProduct
+      ? `${latestProduct.name} shirt from 30shirts.cc`
+      : "30shirts.cc",
+    ogImageUrl: latestProduct
+      ? new URL(
+          `/og/${encodeURIComponent(latestProduct.slug)}/image.png`,
+          request.url,
+        ).href
+      : fallbackImageUrl,
+  };
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
