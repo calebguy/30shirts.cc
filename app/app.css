@@ -1121,6 +1121,7 @@ select:focus-visible {
 
   .archive-card__caption {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 0.25rem;
   }
 
@@ -1199,10 +1200,6 @@ select:focus-visible {
     padding: 0;
   }
 
-  .archive-card__caption {
-    display: grid;
-    gap: 0.25rem;
-  }
 
   .product-page {
     padding: 1rem;
