@@ -426,6 +426,10 @@ select:focus-visible {
   object-fit: cover;
 }
 
+.product-focus__slide--shirt .thumbnail-background img {
+  object-fit: contain;
+}
+
 .product-focus__artwork {
   z-index: 1;
 }
