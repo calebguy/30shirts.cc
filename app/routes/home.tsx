@@ -2,16 +2,14 @@ import { useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 
 import { useCart } from "../components/cart";
-import { ImageZoomDialog } from "../components/image-zoom-dialog";
+import { InPlaceImageZoom } from "../components/in-place-image-zoom";
 import { LeftArrowIcon } from "../components/icons/left-arrow";
 import { PlusIcon } from "../components/icons/plus";
 import { RightArrowIcon } from "../components/icons/right-arrow";
-import { ZoomIcon } from "../components/icons/zoom";
 import { ReferenceSlides, ThumbnailBackground } from "../components/reference-images";
 import {
   FIRST_REFERENCE_IMAGE_INDEX,
   formatMoney,
-  type ProductImage,
   type Product,
   type ProductVariant,
 } from "../lib/fourthwall";
@@ -141,7 +139,6 @@ function Storefront({ products }: { products: Product[] }) {
   }));
   const [productView, setProductView] = useState<ProductView>("front");
   const [activeSlide, setActiveSlide] = useState(0);
-  const [zoomInitialIndex, setZoomInitialIndex] = useState<number | null>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
   const focusRef = useRef<HTMLElement>(null);
   const { addItem, pending } = useCart();
@@ -171,14 +168,6 @@ function Storefront({ products }: { products: Product[] }) {
     productView === "back" && selectedBackImage ? "back" : "front";
   const nextProductView =
     activeProductView === "front" && selectedBackImage ? "back" : "front";
-  const zoomImages = getZoomImages(
-    selectedProduct,
-    selectedImage,
-    selectedBackImage,
-  );
-  const shirtImageCount =
-    (selectedImage ? 1 : 0) +
-    (selectedBackImage && selectedBackImage.id !== selectedImage?.id ? 1 : 0);
 
   function selectProduct(product: Product) {
     if (product.id === selectedProduct.id) {
@@ -228,21 +217,6 @@ function Storefront({ products }: { products: Product[] }) {
     });
   }
 
-  function openActiveImageZoom() {
-    const activeImage =
-      activeSlide === 0
-        ? activeProductView === "back"
-          ? selectedBackImage
-          : selectedImage
-        : selectedProduct.images[
-            FIRST_REFERENCE_IMAGE_INDEX + activeSlide - 1
-          ];
-    const initialIndex = activeImage
-      ? zoomImages.findIndex((image) => image.id === activeImage.id)
-      : 0;
-    setZoomInitialIndex(Math.max(0, initialIndex));
-  }
-
   return (
     <main className="storefront">
       <div className="storefront__featured">
@@ -272,60 +246,54 @@ function Storefront({ products }: { products: Product[] }) {
               <div className="product-focus__slide product-focus__slide--shirt">
                 <ThumbnailBackground images={selectedProduct.images} />
 
-                <button
-                  className="product-focus__artwork"
-                  type="button"
-                  aria-label={`Show ${nextProductView} of ${selectedProduct.name}`}
-                  data-side={activeProductView}
-                  data-size={selectedVariant.size}
-                  disabled={!selectedBackImage}
-                  onClick={() => setProductView(nextProductView)}
+                <InPlaceImageZoom
+                  label={`${selectedProduct.name} ${activeProductView} shirt image`}
+                  resetKey={`${selectedProduct.id}:${selectedVariant.id}:${activeProductView}`}
                 >
-                  <span className="shirt-viewer__views">
-                    {selectedImage ? (
-                      <span className="shirt-viewer__face shirt-viewer__face--front">
-                        <img
-                          src={selectedImage.url}
-                          width={selectedImage.width}
-                          height={selectedImage.height}
-                          alt=""
-                          fetchPriority="high"
-                        />
-                      </span>
-                    ) : null}
-                    {selectedBackImage ? (
-                      <span className="shirt-viewer__face shirt-viewer__face--back">
-                        <img
-                          src={selectedBackImage.url}
-                          width={selectedBackImage.width}
-                          height={selectedBackImage.height}
-                          alt=""
-                        />
-                      </span>
-                    ) : null}
-                  </span>
+                  <button
+                    className="product-focus__artwork"
+                    type="button"
+                    aria-label={`Show ${nextProductView} of ${selectedProduct.name}`}
+                    data-side={activeProductView}
+                    data-size={selectedVariant.size}
+                    disabled={!selectedBackImage}
+                    onClick={() => setProductView(nextProductView)}
+                  >
+                    <span className="shirt-viewer__views">
+                      {selectedImage ? (
+                        <span className="shirt-viewer__face shirt-viewer__face--front">
+                          <img
+                            src={selectedImage.url}
+                            width={selectedImage.width}
+                            height={selectedImage.height}
+                            alt=""
+                            fetchPriority="high"
+                          />
+                        </span>
+                      ) : null}
+                      {selectedBackImage ? (
+                        <span className="shirt-viewer__face shirt-viewer__face--back">
+                          <img
+                            src={selectedBackImage.url}
+                            width={selectedBackImage.width}
+                            height={selectedBackImage.height}
+                            alt=""
+                          />
+                        </span>
+                      ) : null}
+                    </span>
 
-                  {selectedProductSoldOut ? (
-                    <span className="sold-out-badge">sold out</span>
-                  ) : null}
-                </button>
+                    {selectedProductSoldOut ? (
+                      <span className="sold-out-badge">sold out</span>
+                    ) : null}
+                  </button>
+                </InPlaceImageZoom>
               </div>
               <ReferenceSlides
                 images={selectedProduct.images}
                 productName={selectedProduct.name}
               />
             </div>
-            {zoomImages.length > 0 ? (
-              <button
-                className="product-focus__zoom"
-                type="button"
-                aria-haspopup="dialog"
-                aria-label={`View ${selectedProduct.name} images fullscreen`}
-                onClick={openActiveImageZoom}
-              >
-                <ZoomIcon />
-              </button>
-            ) : null}
             {hasReferences ? (
               <div className="product-focus__navigation">
                 <button
@@ -478,40 +446,8 @@ function Storefront({ products }: { products: Product[] }) {
         {selectedProduct.name} selected
       </p>
 
-      {zoomInitialIndex !== null ? (
-        <ImageZoomDialog
-          images={zoomImages}
-          initialIndex={zoomInitialIndex}
-          shirtImageCount={shirtImageCount}
-          productName={selectedProduct.name}
-          onClose={() => setZoomInitialIndex(null)}
-        />
-      ) : null}
     </main>
   );
-}
-
-function getZoomImages(
-  product: Product,
-  frontImage?: ProductImage,
-  backImage?: ProductImage,
-): ProductImage[] {
-  const images: ProductImage[] = [];
-  const imageIds = new Set<string>();
-  const candidates = [
-    frontImage,
-    backImage,
-    ...product.images.slice(FIRST_REFERENCE_IMAGE_INDEX),
-  ];
-
-  for (const image of candidates) {
-    if (image && !imageIds.has(image.id)) {
-      imageIds.add(image.id);
-      images.push(image);
-    }
-  }
-
-  return images;
 }
 
 function replaceGalleryUrl(productId: string, size: string) {

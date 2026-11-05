@@ -4,6 +4,7 @@ import {
   LIGHT_THUMBNAIL_IMAGE_INDEX,
   type ProductImage,
 } from "../lib/fourthwall";
+import { InPlaceImageZoom } from "./in-place-image-zoom";
 
 interface ThumbnailBackgroundProps {
   images: readonly ProductImage[];
@@ -52,24 +53,27 @@ export function ReferenceSlides({ images, productName }: ReferenceSlidesProps) {
   const slides = [];
   for (let index = FIRST_REFERENCE_IMAGE_INDEX; index < images.length; index++) {
     const image = images[index];
+    const referenceNumber = index - FIRST_REFERENCE_IMAGE_INDEX + 1;
     slides.push(
-      <a
+      <div
         className="product-focus__slide product-focus__slide--reference"
-        href={image.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={`Open reference image ${index - FIRST_REFERENCE_IMAGE_INDEX + 1} of ${productName} in a new tab`}
         key={image.id}
       >
-        <img
-          src={image.url}
-          width={image.width}
-          height={image.height}
-          alt=""
-          decoding="async"
-          loading="lazy"
-        />
-      </a>,
+        <InPlaceImageZoom
+          label={`Reference image ${referenceNumber} of ${productName}`}
+          maxScale={4}
+          resetKey={image.id}
+        >
+          <img
+            src={image.url}
+            width={image.width}
+            height={image.height}
+            alt=""
+            decoding="async"
+            loading="lazy"
+          />
+        </InPlaceImageZoom>
+      </div>,
     );
   }
   return slides;
