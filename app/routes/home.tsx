@@ -38,6 +38,7 @@ type LoaderData = ReadyStorefront | UnconfiguredStorefront;
 
 const DISPLAYED_SIZES = ["S", "M", "L", "XL", "2XL"] as const;
 const DEFAULT_SIZE = "L";
+const OG_IMAGE_VERSION = "2";
 
 type ProductView = "front" | "back";
 
@@ -99,12 +100,18 @@ export async function loader({ request }: Route.LoaderArgs): Promise<LoaderData>
       ? `${latestProduct.name} shirt from 30shirts.cc`
       : "30shirts.cc",
     ogImageUrl: latestProduct
-      ? new URL(
-          `/og/${encodeURIComponent(latestProduct.slug)}/image.png`,
-          request.url,
-        ).href
+      ? createOgImageUrl(latestProduct.slug, request.url)
       : fallbackImageUrl,
   };
+}
+
+function createOgImageUrl(productSlug: string, requestUrl: string): string {
+  const url = new URL(
+    `/og/${encodeURIComponent(productSlug)}/image.png`,
+    requestUrl,
+  );
+  url.searchParams.set("v", OG_IMAGE_VERSION);
+  return url.href;
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
