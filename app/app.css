@@ -240,6 +240,33 @@ select:focus-visible {
   transition: transform 180ms ease;
 }
 
+.product-focus__zoom {
+  position: absolute;
+  z-index: 3;
+  top: 1rem;
+  left: 0;
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  color: var(--text);
+  background: transparent;
+  cursor: zoom-in;
+  transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.product-focus__zoom:active {
+  transform: scale(0.96);
+}
+
+.product-focus__zoom svg {
+  display: block;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
 .product-focus__slide {
   position: relative;
   flex: 0 0 100%;
@@ -434,6 +461,181 @@ select:focus-visible {
 
 .product-focus__artwork {
   z-index: 1;
+}
+
+.image-zoom {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 0;
+  color: var(--text);
+  background: var(--background);
+}
+
+.image-zoom::backdrop {
+  background: rgb(0 0 0 / 25%);
+}
+
+.image-zoom__stage {
+  position: absolute;
+  inset: clamp(2rem, 4vw, 3.5rem);
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  place-items: center;
+  overflow: hidden;
+}
+
+.image-zoom__stage img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  will-change: transform;
+}
+
+.image-zoom__controls {
+  position: absolute;
+  z-index: 3;
+  bottom: 1rem;
+  left: 1rem;
+  display: grid;
+  grid-template-columns: 2.5rem 4rem 2.5rem;
+  align-items: center;
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: var(--background);
+}
+
+.image-zoom__controls button {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.image-zoom__controls button:active {
+  transform: scale(0.94);
+}
+
+.image-zoom__controls button:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.image-zoom__controls svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.image-zoom__controls output {
+  text-align: center;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.image-zoom__close,
+.image-zoom__arrow {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  color: var(--text);
+  background: var(--background);
+  cursor: pointer;
+  transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.image-zoom__close:active,
+.image-zoom__arrow:active {
+  transform: scale(0.96);
+}
+
+.image-zoom__close {
+  position: absolute;
+  z-index: 3;
+  top: 1rem;
+  right: 1rem;
+}
+
+.image-zoom__close svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.image-zoom__navigation {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  pointer-events: none;
+}
+
+.image-zoom__arrow {
+  position: absolute;
+  top: 50%;
+  pointer-events: auto;
+  transform: translateY(-50%);
+}
+
+.image-zoom__arrow:active {
+  transform: translateY(-50%) scale(0.96);
+}
+
+.image-zoom__arrow:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.image-zoom__arrow--previous {
+  left: 1rem;
+}
+
+.image-zoom__arrow--next {
+  right: 1rem;
+}
+
+.image-zoom__arrow svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.image-zoom__dots {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  display: flex;
+  gap: 0.6rem;
+  pointer-events: auto;
+  transform: translateX(-50%);
+}
+
+.image-zoom__dots button {
+  width: 0.6rem;
+  height: 0.6rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--muted);
+  cursor: pointer;
+}
+
+.image-zoom__dots button[aria-current="true"] {
+  background: var(--text);
 }
 
 .product-focus__details {
@@ -1160,6 +1362,12 @@ select:focus-visible {
     min-height: 12rem;
   }
 
+  .image-zoom__controls {
+    bottom: 3.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
   .purchase-panel {
     flex-direction: row;
     align-items: center;
@@ -1283,11 +1491,14 @@ select:focus-visible {
   }
 }
 
-
 @media (prefers-reduced-motion: reduce) {
   .cart-trigger,
   .product-focus__artwork img,
   .product-focus__progress-thumb,
+  .product-focus__zoom,
+  .image-zoom__close,
+  .image-zoom__arrow,
+  .image-zoom__controls button,
   .size-picker button,
   .quick-add,
   .archive-card__artwork > img {

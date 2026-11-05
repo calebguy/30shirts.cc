@@ -2,13 +2,16 @@ import { useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 
 import { useCart } from "../components/cart";
+import { ImageZoomDialog } from "../components/image-zoom-dialog";
 import { LeftArrowIcon } from "../components/icons/left-arrow";
 import { PlusIcon } from "../components/icons/plus";
 import { RightArrowIcon } from "../components/icons/right-arrow";
+import { ZoomIcon } from "../components/icons/zoom";
 import { ReferenceSlides, ThumbnailBackground } from "../components/reference-images";
 import {
   FIRST_REFERENCE_IMAGE_INDEX,
   formatMoney,
+  type ProductImage,
   type Product,
   type ProductVariant,
 } from "../lib/fourthwall";
@@ -138,6 +141,7 @@ function Storefront({ products }: { products: Product[] }) {
   }));
   const [productView, setProductView] = useState<ProductView>("front");
   const [activeSlide, setActiveSlide] = useState(0);
+  const [zoomInitialIndex, setZoomInitialIndex] = useState<number | null>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
   const focusRef = useRef<HTMLElement>(null);
   const { addItem, pending } = useCart();
@@ -167,6 +171,14 @@ function Storefront({ products }: { products: Product[] }) {
     productView === "back" && selectedBackImage ? "back" : "front";
   const nextProductView =
     activeProductView === "front" && selectedBackImage ? "back" : "front";
+  const zoomImages = getZoomImages(
+    selectedProduct,
+    selectedImage,
+    selectedBackImage,
+  );
+  const shirtImageCount =
+    (selectedImage ? 1 : 0) +
+    (selectedBackImage && selectedBackImage.id !== selectedImage?.id ? 1 : 0);
 
   function selectProduct(product: Product) {
     if (product.id === selectedProduct.id) {
@@ -214,6 +226,21 @@ function Storefront({ products }: { products: Product[] }) {
         ? "auto"
         : "smooth",
     });
+  }
+
+  function openActiveImageZoom() {
+    const activeImage =
+      activeSlide === 0
+        ? activeProductView === "back"
+          ? selectedBackImage
+          : selectedImage
+        : selectedProduct.images[
+            FIRST_REFERENCE_IMAGE_INDEX + activeSlide - 1
+          ];
+    const initialIndex = activeImage
+      ? zoomImages.findIndex((image) => image.id === activeImage.id)
+      : 0;
+    setZoomInitialIndex(Math.max(0, initialIndex));
   }
 
   return (
@@ -288,6 +315,17 @@ function Storefront({ products }: { products: Product[] }) {
                 productName={selectedProduct.name}
               />
             </div>
+            {zoomImages.length > 0 ? (
+              <button
+                className="product-focus__zoom"
+                type="button"
+                aria-haspopup="dialog"
+                aria-label={`View ${selectedProduct.name} images fullscreen`}
+                onClick={openActiveImageZoom}
+              >
+                <ZoomIcon />
+              </button>
+            ) : null}
             {hasReferences ? (
               <div className="product-focus__navigation">
                 <button
@@ -439,8 +477,41 @@ function Storefront({ products }: { products: Product[] }) {
       <p className="visually-hidden" aria-live="polite">
         {selectedProduct.name} selected
       </p>
+
+      {zoomInitialIndex !== null ? (
+        <ImageZoomDialog
+          images={zoomImages}
+          initialIndex={zoomInitialIndex}
+          shirtImageCount={shirtImageCount}
+          productName={selectedProduct.name}
+          onClose={() => setZoomInitialIndex(null)}
+        />
+      ) : null}
     </main>
   );
+}
+
+function getZoomImages(
+  product: Product,
+  frontImage?: ProductImage,
+  backImage?: ProductImage,
+): ProductImage[] {
+  const images: ProductImage[] = [];
+  const imageIds = new Set<string>();
+  const candidates = [
+    frontImage,
+    backImage,
+    ...product.images.slice(FIRST_REFERENCE_IMAGE_INDEX),
+  ];
+
+  for (const image of candidates) {
+    if (image && !imageIds.has(image.id)) {
+      imageIds.add(image.id);
+      images.push(image);
+    }
+  }
+
+  return images;
 }
 
 function replaceGalleryUrl(productId: string, size: string) {
