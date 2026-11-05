@@ -38,7 +38,7 @@ type LoaderData = ReadyStorefront | UnconfiguredStorefront;
 
 const DISPLAYED_SIZES = ["S", "M", "L", "XL", "2XL"] as const;
 const DEFAULT_SIZE = "L";
-const OG_IMAGE_VERSION = "3";
+const OG_IMAGE_VERSION = "4";
 
 type ProductView = "front" | "back";
 
