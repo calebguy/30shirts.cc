@@ -27,7 +27,7 @@
 		"remote": true
 	},
 	"cache": {
-		"enabled": true
+		"enabled": false
 	},
 	"observability": {
 		"enabled": true,
