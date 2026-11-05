@@ -280,6 +280,15 @@ select:focus-visible {
   touch-action: pan-y;
 }
 
+.in-place-zoom,
+.in-place-zoom * {
+  user-select: none;
+}
+
+.in-place-zoom img {
+  -webkit-user-drag: none;
+}
+
 .in-place-zoom[data-zoomed] {
   touch-action: none;
 }

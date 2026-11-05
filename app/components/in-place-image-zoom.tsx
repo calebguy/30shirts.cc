@@ -355,6 +355,7 @@ export function InPlaceImageZoom({
         event.preventDefault();
         event.stopPropagation();
       }}
+      onDragStart={(event) => event.preventDefault()}
       onKeyDown={handleKeyDown}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
