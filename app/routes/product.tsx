@@ -4,6 +4,12 @@ import { Link } from "react-router";
 import { AddToCartButton } from "../components/cart";
 import { formatMoney, type Product } from "../lib/fourthwall";
 import {
+  DEFAULT_SIZE,
+  getDisplayedVariants,
+  getInitialVariant,
+  usePreferredColorScheme,
+} from "../lib/product-variants";
+import {
   FourthwallApiError,
   getProduct,
   getStorefrontConfig,
@@ -55,20 +61,16 @@ export async function loader({
   }
 }
 
-const DEFAULT_SIZE = "L";
-
 export default function ProductPage({ loaderData }: Route.ComponentProps) {
   const { product } = loaderData;
-  const initialVariant =
-    product.variants.find(
-      (variant) => variant.size === DEFAULT_SIZE && variant.available,
-    ) ??
-    product.variants.find((variant) => variant.available) ??
-    product.variants.find((variant) => variant.size === DEFAULT_SIZE) ??
-    product.variants[0];
-  const [selectedVariantId, setSelectedVariantId] = useState(initialVariant.id);
+  const colorScheme = usePreferredColorScheme();
+  const displayedVariants = getDisplayedVariants(product, colorScheme);
+  const initialVariant = getInitialVariant(product, colorScheme);
+  const [selectedSize, setSelectedSize] = useState(
+    initialVariant.size ?? DEFAULT_SIZE,
+  );
   const selectedVariant =
-    product.variants.find((variant) => variant.id === selectedVariantId) ??
+    displayedVariants.find((variant) => variant.size === selectedSize) ??
     initialVariant;
   const image = selectedVariant.images[0] ?? product.images[0];
 
@@ -99,18 +101,25 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
           />
 
           <label className="variant-picker">
-            <span>Options</span>
+            <span>Size</span>
             <select
-              value={selectedVariantId}
-              onChange={(event) => setSelectedVariantId(event.target.value)}
+              value={selectedVariant.id}
+              onChange={(event) => {
+                const variant = displayedVariants.find(
+                  (candidate) => candidate.id === event.target.value,
+                );
+                if (variant?.size) {
+                  setSelectedSize(variant.size);
+                }
+              }}
             >
-              {product.variants.map((variant) => (
+              {displayedVariants.map((variant) => (
                 <option
                   value={variant.id}
                   disabled={!variant.available}
                   key={variant.id}
                 >
-                  {variant.name}
+                  {variant.size ?? variant.name}
                   {variant.available ? "" : " — Sold out"}
                 </option>
               ))}

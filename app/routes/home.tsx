@@ -17,6 +17,13 @@ import {
   getStorefrontConfig,
   listProducts,
 } from "../lib/fourthwall.server";
+import {
+  DEFAULT_SIZE,
+  getDisplayedVariants,
+  getInitialVariant,
+  isSoldOut,
+  usePreferredColorScheme,
+} from "../lib/product-variants";
 import type { Route } from "./+types/home";
 
 interface SocialMetadata {
@@ -36,8 +43,6 @@ interface UnconfiguredStorefront extends SocialMetadata {
 
 type LoaderData = ReadyStorefront | UnconfiguredStorefront;
 
-const DISPLAYED_SIZES = ["S", "M", "L", "XL", "2XL"] as const;
-const DEFAULT_SIZE = "L";
 const OG_IMAGE_VERSION = "4";
 
 type ProductView = "front" | "back";
@@ -131,15 +136,16 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 }
 
 function Storefront({ products }: { products: Product[] }) {
+  const colorScheme = usePreferredColorScheme();
   const [searchParams] = useSearchParams();
   const requestedProductId = searchParams.get("product");
   const initialProduct =
     products.find((product) => product.id === requestedProductId) ?? products[0];
   const requestedSize = searchParams.get("size");
   const initialVariant =
-    getDisplayedVariants(initialProduct).find(
+    getDisplayedVariants(initialProduct, colorScheme).find(
       (variant) => variant.size === requestedSize,
-    ) ?? getInitialVariant(initialProduct);
+    ) ?? getInitialVariant(initialProduct, colorScheme);
   const [selection, setSelection] = useState(() => ({
     productId: initialProduct.id,
     selectedSize: initialVariant.size ?? DEFAULT_SIZE,
@@ -152,22 +158,25 @@ function Storefront({ products }: { products: Product[] }) {
   const selectedProduct =
     products.find((product) => product.id === selection.productId) ??
     initialProduct;
-  const displayedVariants = getDisplayedVariants(selectedProduct);
+  const displayedVariants = getDisplayedVariants(selectedProduct, colorScheme);
   const selectedVariant =
     displayedVariants.find(
       (variant) => variant.size === selection.selectedSize,
-    ) ?? getInitialVariant(selectedProduct);
-  const selectedImage = selectedVariant.images[0] ?? selectedProduct.images[0];
-  const selectedBackImage =
-    selectedVariant.images[1] ?? selectedProduct.images[1];
-  const selectedProductSoldOut = isSoldOut(selectedProduct);
+    ) ?? getInitialVariant(selectedProduct, colorScheme);
+  const selectedImages =
+    selectedVariant.images.length > 0
+      ? selectedVariant.images
+      : selectedProduct.images;
+  const selectedImage = selectedImages[0];
+  const selectedBackImage = selectedImages[1];
+  const selectedProductSoldOut = isSoldOut(selectedProduct, colorScheme);
   const selectedVariantUnavailable =
     selectedProductSoldOut || !selectedVariant.available;
   const slideCount =
     1 +
     Math.max(
       0,
-      selectedProduct.images.length - FIRST_REFERENCE_IMAGE_INDEX,
+      selectedImages.length - FIRST_REFERENCE_IMAGE_INDEX,
     );
   const hasReferences = slideCount > 1;
   const productDescriptionHtml = selectedProduct.descriptionHtml.trim();
@@ -182,9 +191,9 @@ function Storefront({ products }: { products: Product[] }) {
     }
 
     const nextVariant =
-      getDisplayedVariants(product).find(
+      getDisplayedVariants(product, colorScheme).find(
         (variant) => variant.size === selection.selectedSize,
-      ) ?? getInitialVariant(product);
+      ) ?? getInitialVariant(product, colorScheme);
     const selectedSize = nextVariant.size ?? selection.selectedSize;
 
     setSelection({ productId: product.id, selectedSize });
@@ -251,7 +260,7 @@ function Storefront({ products }: { products: Product[] }) {
               key={selectedProduct.id}
             >
               <div className="product-focus__slide product-focus__slide--shirt">
-                <ThumbnailBackground images={selectedProduct.images} />
+                <ThumbnailBackground images={selectedImages} />
 
                 <InPlaceImageZoom
                   label={`${selectedProduct.name} ${activeProductView} shirt image`}
@@ -297,7 +306,7 @@ function Storefront({ products }: { products: Product[] }) {
                 </InPlaceImageZoom>
               </div>
               <ReferenceSlides
-                images={selectedProduct.images}
+                images={selectedImages}
                 productName={selectedProduct.name}
               />
             </div>
@@ -401,13 +410,17 @@ function Storefront({ products }: { products: Product[] }) {
         <h2 className="visually-hidden">Shirt archive</h2>
         <div className="archive__list">
           {products.map((product, index) => {
-            const image = product.images[0];
             const isSelected = product.id === selectedProduct.id;
-            const soldOut = isSoldOut(product);
+            const soldOut = isSoldOut(product, colorScheme);
             const previewVariant =
-              getDisplayedVariants(product).find(
+              getDisplayedVariants(product, colorScheme).find(
                 (variant) => variant.size === selection.selectedSize,
-              ) ?? getInitialVariant(product);
+              ) ?? getInitialVariant(product, colorScheme);
+            const image = previewVariant.images[0] ?? product.images[0];
+            const previewImages =
+              previewVariant.images.length > 0
+                ? previewVariant.images
+                : product.images;
 
             return (
               <button
@@ -423,7 +436,7 @@ function Storefront({ products }: { products: Product[] }) {
                   data-size={selection.selectedSize}
                 >
                   <ThumbnailBackground
-                    images={product.images}
+                    images={previewImages}
                     loading={index < 2 ? "eager" : "lazy"}
                   />
                   {image ? (
@@ -460,36 +473,6 @@ function Storefront({ products }: { products: Product[] }) {
 function replaceGalleryUrl(productId: string, size: string) {
   const search = new URLSearchParams({ product: productId, size });
   window.history.replaceState(window.history.state, "", `/?${search}`);
-}
-
-function getDisplayedVariants(product: Product): ProductVariant[] {
-  return DISPLAYED_SIZES.flatMap((size) =>
-    product.variants.filter((variant) => variant.size === size),
-  );
-}
-
-function isSoldOut(product: Product): boolean {
-  return (
-    !product.available ||
-    getDisplayedVariants(product).every((variant) => !variant.available)
-  );
-}
-
-function getInitialVariant(product: Product): ProductVariant {
-  const displayedVariants = getDisplayedVariants(product);
-  const variant =
-    displayedVariants.find(
-      (candidate) => candidate.size === DEFAULT_SIZE && candidate.available,
-    ) ??
-    displayedVariants.find((candidate) => candidate.available) ??
-    displayedVariants.find((candidate) => candidate.size === DEFAULT_SIZE) ??
-    displayedVariants[0];
-
-  if (!variant) {
-    throw new Error(`Product ${product.id} has no supported size variants.`);
-  }
-
-  return variant;
 }
 
 function StorefrontSetup() {
