@@ -277,7 +277,7 @@ select:focus-visible {
   min-height: 0;
   overflow: hidden;
   cursor: zoom-in;
-  touch-action: pan-y;
+  touch-action: pan-x pan-y;
 }
 
 .in-place-zoom,

@@ -31,8 +31,6 @@ interface TouchGesture {
 interface SingleTouchGesture {
   startPoint: Point;
   viewport: ZoomViewport;
-  gallery: HTMLElement | null;
-  galleryScrollLeft: number;
   moved: boolean;
 }
 
@@ -109,14 +107,9 @@ export function InPlaceImageZoom({
         if (!touch) {
           return;
         }
-        const gallery = touchRoot.closest<HTMLElement>(
-          ".product-focus__gallery",
-        );
         singleTouchGestureRef.current = {
           startPoint: { x: touch.clientX, y: touch.clientY },
           viewport: viewportRef.current,
-          gallery,
-          galleryScrollLeft: gallery?.scrollLeft ?? 0,
           moved: false,
         };
         return;
@@ -175,19 +168,17 @@ export function InPlaceImageZoom({
         return;
       }
 
-      if (gesture.viewport.scale > MIN_SCALE) {
-        event.preventDefault();
-        suppressClickUntilRef.current = performance.now() + 500;
-        updateViewport({
-          scale: gesture.viewport.scale,
-          x: gesture.viewport.x + x,
-          y: gesture.viewport.y + y,
-        });
-      } else if (Math.abs(x) > Math.abs(y) && gesture.gallery) {
-        event.preventDefault();
-        suppressClickUntilRef.current = performance.now() + 500;
-        gesture.gallery.scrollLeft = gesture.galleryScrollLeft - x;
+      suppressClickUntilRef.current = performance.now() + 500;
+      if (gesture.viewport.scale === MIN_SCALE) {
+        return;
       }
+
+      event.preventDefault();
+      updateViewport({
+        scale: gesture.viewport.scale,
+        x: gesture.viewport.x + x,
+        y: gesture.viewport.y + y,
+      });
     }
 
     function handleTouchEnd(event: TouchEvent) {
@@ -196,24 +187,6 @@ export function InPlaceImageZoom({
       }
 
       touchGestureRef.current = null;
-      const gesture = singleTouchGestureRef.current;
-      if (
-        gesture?.moved &&
-        gesture.viewport.scale === MIN_SCALE &&
-        gesture.gallery
-      ) {
-        const slideIndex = Math.round(
-          gesture.gallery.scrollLeft / gesture.gallery.clientWidth,
-        );
-        gesture.gallery.scrollTo({
-          left: slideIndex * gesture.gallery.clientWidth,
-          behavior: window.matchMedia(
-            "(prefers-reduced-motion: reduce)",
-          ).matches
-            ? "auto"
-            : "smooth",
-        });
-      }
       singleTouchGestureRef.current = null;
     }
 
