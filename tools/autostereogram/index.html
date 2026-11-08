@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Autostereogram Tool</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="tool-header">
+      <div>
+        <p class="eyebrow">30shirts.cc / local tool</p>
+        <h1>Autostereogram</h1>
+      </div>
+      <p class="header-note">White is near. Black is far.</p>
+    </header>
+
+    <main class="workspace">
+      <form id="controls" class="controls">
+        <fieldset>
+          <legend>Depth</legend>
+          <label class="file-control">
+            <span>Depth map</span>
+            <input id="depth-map" type="file" accept="image/png,image/jpeg,image/webp" />
+            <small>Leave empty for the built-in T-shirt silhouette.</small>
+          </label>
+
+          <div class="control-grid control-grid--two">
+            <label>
+              <span>Fit</span>
+              <select id="image-fit">
+                <option value="contain">Contain</option>
+                <option value="cover">Cover</option>
+              </select>
+            </label>
+            <label class="check-control">
+              <input id="invert-depth" type="checkbox" />
+              <span>Invert depth</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Pattern</legend>
+          <div class="control-grid control-grid--two">
+            <label>
+              <span>Source</span>
+              <select id="pattern-mode">
+                <option value="monochrome">Random monochrome</option>
+                <option value="color">Random color</option>
+                <option value="custom">Uploaded pattern</option>
+              </select>
+            </label>
+            <label>
+              <span>Dot size</span>
+              <div class="number-unit">
+                <input id="dot-size" type="number" min="1" max="64" step="1" value="10" />
+                <span>px</span>
+              </div>
+            </label>
+          </div>
+
+          <label id="pattern-file-control" class="file-control is-hidden">
+            <span>Pattern image</span>
+            <input id="pattern-file" type="file" accept="image/png,image/jpeg,image/webp" />
+            <small>The image is scaled to one repeat and tiled vertically.</small>
+          </label>
+
+          <div class="control-grid control-grid--two">
+            <label>
+              <span>Seed</span>
+              <div class="seed-control">
+                <input id="seed" type="number" min="0" max="4294967295" step="1" value="1107" />
+                <button id="randomize-seed" class="secondary-button" type="button">Randomize</button>
+              </div>
+            </label>
+            <label>
+              <span>Viewing</span>
+              <select id="viewing-mode">
+                <option value="parallel">Parallel / wall-eyed</option>
+                <option value="cross-eyed">Cross-eyed</option>
+              </select>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Print</legend>
+          <div class="control-grid control-grid--three">
+            <label>
+              <span>Width</span>
+              <div class="number-unit">
+                <input id="output-width" type="number" min="256" max="8000" step="1" value="4500" />
+                <span>px</span>
+              </div>
+            </label>
+            <label>
+              <span>Height</span>
+              <div class="number-unit">
+                <input id="output-height" type="number" min="256" max="8000" step="1" value="5400" />
+                <span>px</span>
+              </div>
+            </label>
+            <label>
+              <span>Resolution</span>
+              <div class="number-unit">
+                <input id="dpi" type="number" min="72" max="600" step="1" value="300" />
+                <span>DPI</span>
+              </div>
+            </label>
+          </div>
+
+          <div class="control-grid control-grid--two">
+            <label>
+              <span>Pattern separation</span>
+              <div class="number-unit">
+                <input id="repeat-inches" type="number" min="0.5" max="2.5" step="0.05" value="1.4" />
+                <span>in</span>
+              </div>
+            </label>
+            <label>
+              <span>Depth strength</span>
+              <div class="number-unit">
+                <input id="depth-strength" type="number" min="1" max="35" step="1" value="14" />
+                <span>%</span>
+              </div>
+            </label>
+          </div>
+
+          <label class="check-control">
+            <input id="guide-dots" type="checkbox" checked />
+            <span>Viewing guide dots <small>Turn off for the final print.</small></span>
+          </label>
+
+          <output id="print-summary" class="print-summary"></output>
+        </fieldset>
+
+        <div class="actions">
+          <button id="render-preview" class="primary-button" type="button">Render preview</button>
+          <button id="export-png" class="secondary-button" type="button">Export full PNG</button>
+        </div>
+      </form>
+
+      <section class="preview-panel" aria-labelledby="preview-title">
+        <div class="preview-header">
+          <div>
+            <p class="eyebrow">Output</p>
+            <h2 id="preview-title">Preview</h2>
+          </div>
+          <div class="preview-meta">
+            <output id="render-stats" class="render-stats"></output>
+            <label class="check-control overlay-toggle">
+              <input id="show-depth-overlay" type="checkbox" checked />
+              <span>Show depth overlay</span>
+            </label>
+          </div>
+        </div>
+
+        <div id="preview-stage" class="preview-stage">
+          <p id="preview-placeholder">Render the built-in depth map or upload your own.</p>
+          <div id="preview-composite" class="preview-composite is-overlay-visible" hidden>
+            <img id="preview-image" alt="Generated autostereogram preview" />
+            <img id="depth-overlay-image" alt="" aria-hidden="true" />
+          </div>
+        </div>
+
+        <div class="progress-row">
+          <progress id="render-progress" max="100" value="0"></progress>
+          <output id="status" aria-live="polite">Ready</output>
+        </div>
+
+        <div id="viewing-help" class="viewing-help">
+          <strong>Parallel viewing</strong>
+          <span>Relax your focus beyond the image until adjacent repeats merge.</span>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="/main.ts"></script>
+  </body>
+</html>

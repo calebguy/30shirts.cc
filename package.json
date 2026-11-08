@@ -9,6 +9,8 @@
     "typecheck": "wrangler types && react-router typegen && tsc -b",
     "deploy": "bun run build && wrangler deploy",
     "preview": "bun run build && vite preview",
+    "stereogram": "vite tools/autostereogram",
+    "stereogram:build": "vite build tools/autostereogram --outDir dist --emptyOutDir",
     "cf-typegen": "wrangler types",
     "postinstall": "wrangler types"
   },
