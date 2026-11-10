@@ -21,6 +21,7 @@ import {
   DEFAULT_SIZE,
   getDisplayedVariants,
   getInitialVariant,
+  isApparelSize,
   isSoldOut,
   usePreferredColorScheme,
 } from "../lib/product-variants";
@@ -127,7 +128,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   if (loaderData.products.length === 0) {
     return (
       <main className="empty-catalog">
-        <p>No shirts available.</p>
+        <p>No products available.</p>
       </main>
     );
   }
@@ -148,7 +149,10 @@ function Storefront({ products }: { products: Product[] }) {
     ) ?? getInitialVariant(initialProduct, colorScheme);
   const [selection, setSelection] = useState(() => ({
     productId: initialProduct.id,
-    selectedSize: initialVariant.size ?? DEFAULT_SIZE,
+    selectedVariantId: initialVariant.id,
+    preferredSize: isApparelSize(initialVariant.size)
+      ? initialVariant.size
+      : DEFAULT_SIZE,
   }));
   const [productView, setProductView] = useState<ProductView>("front");
   const [activeSlide, setActiveSlide] = useState(0);
@@ -161,8 +165,12 @@ function Storefront({ products }: { products: Product[] }) {
   const displayedVariants = getDisplayedVariants(selectedProduct, colorScheme);
   const selectedVariant =
     displayedVariants.find(
-      (variant) => variant.size === selection.selectedSize,
-    ) ?? getInitialVariant(selectedProduct, colorScheme);
+      (variant) => variant.id === selection.selectedVariantId,
+    ) ??
+    displayedVariants.find(
+      (variant) => variant.size === selection.preferredSize,
+    ) ??
+    getInitialVariant(selectedProduct, colorScheme);
   const selectedImages =
     selectedVariant.images.length > 0
       ? selectedVariant.images
@@ -192,12 +200,18 @@ function Storefront({ products }: { products: Product[] }) {
 
     const nextVariant =
       getDisplayedVariants(product, colorScheme).find(
-        (variant) => variant.size === selection.selectedSize,
+        (variant) => variant.size === selection.preferredSize,
       ) ?? getInitialVariant(product, colorScheme);
-    const selectedSize = nextVariant.size ?? selection.selectedSize;
+    const preferredSize = isApparelSize(nextVariant.size)
+      ? nextVariant.size
+      : selection.preferredSize;
 
-    setSelection({ productId: product.id, selectedSize });
-    replaceGalleryUrl(product.id, selectedSize);
+    setSelection({
+      productId: product.id,
+      selectedVariantId: nextVariant.id,
+      preferredSize,
+    });
+    replaceGalleryUrl(product.id, nextVariant.size);
     setActiveSlide(0);
     setProductView("front");
 
@@ -213,10 +227,15 @@ function Storefront({ products }: { products: Product[] }) {
     }
   }
 
-  function selectSize(variant: ProductVariant) {
-    const selectedSize = variant.size ?? selection.selectedSize;
-    setSelection((current) => ({ ...current, selectedSize }));
-    replaceGalleryUrl(selectedProduct.id, selectedSize);
+  function selectVariant(variant: ProductVariant) {
+    setSelection((current) => ({
+      ...current,
+      selectedVariantId: variant.id,
+      preferredSize: isApparelSize(variant.size)
+        ? variant.size
+        : current.preferredSize,
+    }));
+    replaceGalleryUrl(selectedProduct.id, variant.size);
   }
 
   function scrollToSlide(index: number) {
@@ -244,8 +263,8 @@ function Storefront({ products }: { products: Product[] }) {
               role="region"
               aria-label={
                 hasReferences
-                  ? `${selectedProduct.name} shirt and references; scroll horizontally to view images`
-                  : `${selectedProduct.name} shirt image`
+                  ? `${selectedProduct.name} product and references; scroll horizontally to view images`
+                  : `${selectedProduct.name} product image`
               }
               tabIndex={hasReferences ? 0 : -1}
               onScroll={(event) => {
@@ -263,7 +282,7 @@ function Storefront({ products }: { products: Product[] }) {
                 <ThumbnailBackground images={selectedImages} />
 
                 <InPlaceImageZoom
-                  label={`${selectedProduct.name} ${activeProductView} shirt image`}
+                  label={`${selectedProduct.name} ${activeProductView} product image`}
                   resetKey={`${selectedProduct.id}:${selectedVariant.id}:${activeProductView}`}
                 >
                   <button
@@ -376,7 +395,7 @@ function Storefront({ products }: { products: Product[] }) {
                   aria-pressed={variant.id === selectedVariant.id}
                   disabled={!variant.available}
                   key={variant.id}
-                  onClick={() => selectSize(variant)}
+                  onClick={() => selectVariant(variant)}
                 >
                   {variant.size ?? variant.name}
                 </button>
@@ -406,15 +425,15 @@ function Storefront({ products }: { products: Product[] }) {
         </aside>
       </div>
 
-      <section className="archive" aria-label="Shirt archive">
-        <h2 className="visually-hidden">Shirt archive</h2>
+      <section className="archive" aria-label="Product archive">
+        <h2 className="visually-hidden">Product archive</h2>
         <div className="archive__list">
           {products.map((product, index) => {
             const isSelected = product.id === selectedProduct.id;
             const soldOut = isSoldOut(product, colorScheme);
             const previewVariant =
               getDisplayedVariants(product, colorScheme).find(
-                (variant) => variant.size === selection.selectedSize,
+                (variant) => variant.size === selection.preferredSize,
               ) ?? getInitialVariant(product, colorScheme);
             const image = previewVariant.images[0] ?? product.images[0];
             const previewImages =
@@ -433,7 +452,7 @@ function Storefront({ products }: { products: Product[] }) {
               >
                 <span
                   className="archive-card__artwork"
-                  data-size={selection.selectedSize}
+                  data-size={previewVariant.size}
                 >
                   <ThumbnailBackground
                     images={previewImages}
@@ -470,8 +489,11 @@ function Storefront({ products }: { products: Product[] }) {
   );
 }
 
-function replaceGalleryUrl(productId: string, size: string) {
-  const search = new URLSearchParams({ product: productId, size });
+function replaceGalleryUrl(productId: string, size?: string) {
+  const search = new URLSearchParams({ product: productId });
+  if (size) {
+    search.set("size", size);
+  }
   window.history.replaceState(window.history.state, "", `/?${search}`);
 }
 

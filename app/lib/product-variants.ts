@@ -30,9 +30,17 @@ export function getDisplayedVariants(
   colorScheme: ColorScheme,
 ): ProductVariant[] {
   const variants = getColorSchemeVariants(product, colorScheme);
-  return DISPLAYED_SIZES.flatMap((size) =>
+  const apparelVariants = DISPLAYED_SIZES.flatMap((size) =>
     variants.filter((variant) => variant.size === size),
   );
+
+  return apparelVariants.length > 0 ? apparelVariants : variants;
+}
+
+export function isApparelSize(
+  size: string | undefined,
+): size is (typeof DISPLAYED_SIZES)[number] {
+  return DISPLAYED_SIZES.some((apparelSize) => apparelSize === size);
 }
 
 export function getInitialVariant(
@@ -49,7 +57,7 @@ export function getInitialVariant(
     displayedVariants[0];
 
   if (!variant) {
-    throw new Error(`Product ${product.id} has no supported size variants.`);
+    throw new Error(`Product ${product.id} has no purchasable variants.`);
   }
 
   return variant;
