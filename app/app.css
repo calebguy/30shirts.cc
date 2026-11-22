@@ -1107,7 +1107,7 @@ select:focus-visible {
 .cart-page__actions > .primary-button > span {
   display: inline-block;
   line-height: 1;
-  transform: translateY(0.06em);
+  transform: translateY(0.18em);
 }
 
 .quick-add,
