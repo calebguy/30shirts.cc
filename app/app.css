@@ -87,7 +87,7 @@ select:focus-visible {
   top: 1rem;
   right: 1rem;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   padding: 0;
   border: 0;
   background: transparent;
@@ -95,6 +95,7 @@ select:focus-visible {
   font-size: var(--type-display);
   font-weight: 400;
   letter-spacing: -0.025em;
+  line-height: 1;
   text-transform: uppercase;
 }
 
@@ -102,16 +103,24 @@ select:focus-visible {
   display: none;
 }
 
-.cart-trigger span {
-  font-size: inherit;
+.cart-count {
+  display: inline-grid;
+  grid-template-columns: max-content minmax(0.65em, max-content) max-content;
+  align-items: center;
+  column-gap: 0.02em;
   margin-left: 0.35em;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  line-height: 1;
+  text-align: center;
 }
 
-.cart-trigger span::before {
+.cart-count::before {
   content: "(";
 }
 
-.cart-trigger span::after {
+.cart-count::after {
   content: ")";
 }
 
@@ -878,25 +887,16 @@ select:focus-visible {
 
 
 .cart-page__header h1 {
+  display: flex;
+  align-items: center;
   margin: 0;
   font-size: var(--type-display);
   font-weight: 400;
   letter-spacing: -0.025em;
+  line-height: 1;
   text-transform: uppercase;
 }
 
-.cart-page__header h1 span {
-  font: inherit;
-  margin-left: 0.35em;
-}
-
-.cart-page__header h1 span::before {
-  content: "(";
-}
-
-.cart-page__header h1 span::after {
-  content: ")";
-}
 
 .cart-page__back {
   display: grid;
@@ -1102,6 +1102,12 @@ select:focus-visible {
   border: 1px solid var(--text);
   border-radius: var(--border-radius);
   text-align: center;
+}
+
+.cart-page__actions > .primary-button > span {
+  display: inline-block;
+  line-height: 1;
+  transform: translateY(0.06em);
 }
 
 .quick-add,

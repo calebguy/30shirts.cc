@@ -202,7 +202,10 @@ export function CartButton() {
 
   return (
     <NavLink className="cart-trigger" to="/cart">
-      Cart<span aria-label={`${itemCount} items`}>{itemCount}</span>
+      Cart
+      <span className="cart-count" aria-label={`${itemCount} items`}>
+        {itemCount}
+      </span>
     </NavLink>
   );
 }
@@ -446,7 +449,10 @@ export function CartPage() {
             <LeftArrowIcon />
           </NavLink>
           <h1>
-            Cart<span aria-label={`${itemCount} items`}>{itemCount}</span>
+            Cart
+            <span className="cart-count" aria-label={`${itemCount} items`}>
+              {itemCount}
+            </span>
           </h1>
         </header>
 
@@ -479,7 +485,7 @@ export function CartPage() {
                 disabled={pending}
                 onClick={checkout}
               >
-                Pay
+                <span>Pay</span>
               </button>
             </div>
           </footer>
