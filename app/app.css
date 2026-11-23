@@ -555,27 +555,27 @@ select:focus-visible {
   padding-top: 1rem;
 }
 
-.size-picker {
+.variant-options {
   width: 100%;
   margin: 0 0 1.5rem;
   padding: 0;
   border: 0;
 }
 
-.size-picker > div {
+.variant-options > div {
   display: grid;
   justify-items: start;
   gap: 0.5rem;
 }
 
-.size-picker button {
+.variant-options button {
   min-width: 2.75rem;
   padding: 0.5rem 0.3rem 0.1rem;
   font-size: var(--type-display);
   line-height: 1;
 }
 
-.size-picker button {
+.variant-options button {
   border: 1px solid transparent;
   border-radius: var(--border-radius);
   color: var(--text);
@@ -586,11 +586,11 @@ select:focus-visible {
     opacity 140ms ease;
 }
 
-.size-picker button.is-selected {
+.variant-options button.is-selected {
   border-color: currentColor;
 }
 
-.size-picker button:disabled {
+.variant-options button:disabled {
   cursor: not-allowed;
   opacity: 0.25;
   text-decoration: line-through;
@@ -728,7 +728,7 @@ select:focus-visible {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .size-picker button:hover:not(:disabled):not(.is-selected) {
+  .variant-options button:hover:not(:disabled):not(.is-selected) {
     border-color: currentColor;
     border-style: dashed;
   }
@@ -1235,19 +1235,19 @@ select:focus-visible {
     padding: 0 0 1rem;
   }
 
-  .size-picker {
+  .variant-options {
     flex: 1;
     width: auto;
     min-width: 0;
     margin: 0;
   }
 
-  .size-picker > div {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+  .variant-options > div {
+    grid-template-columns: repeat(auto-fit, minmax(2.75rem, 1fr));
     gap: 0.5rem;
   }
 
-  .size-picker button {
+  .variant-options button {
     width: 100%;
     min-width: 0;
     min-height: 2.75rem;
@@ -1355,7 +1355,7 @@ select:focus-visible {
   .cart-trigger,
   .product-focus__artwork img,
   .product-focus__progress-thumb,
-  .size-picker button,
+  .variant-options button,
   .quick-add,
   .archive-card__artwork > img {
     transition: none;

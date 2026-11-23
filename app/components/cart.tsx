@@ -27,6 +27,10 @@ import {
   type CartItem,
   type StorefrontConfig,
 } from "../lib/fourthwall";
+import {
+  createProductGroupId,
+  findProductGroupMember,
+} from "../lib/product-groups";
 
 const CART_STORAGE_KEY = "30shirts.cc-cart";
 
@@ -121,7 +125,7 @@ export function CartProvider({ children, config }: CartProviderProps) {
       window.localStorage.setItem(CART_STORAGE_KEY, updatedCart.id);
       setCart(updatedCart);
     } catch {
-      setError("That shirt couldn't be added. Please try again.");
+      setError("That item couldn't be added. Please try again.");
     } finally {
       setPending(false);
     }
@@ -243,8 +247,35 @@ function parseQuantity(value: string): number | undefined {
   return Number.isSafeInteger(quantity) ? quantity : undefined;
 }
 
+interface CartItemPresentation {
+  productName: string;
+  variantName: string;
+}
+
+function getCartItemPresentation(item: CartItem): CartItemPresentation {
+  const groupMember = findProductGroupMember(item.productSlug);
+  if (!groupMember) {
+    return {
+      productName: item.productName,
+      variantName: item.size ?? item.variantName,
+    };
+  }
+
+  return {
+    productName: groupMember.group.name,
+    variantName: `${groupMember.group.selectionLabel} ${groupMember.member.selectionValue}`,
+  };
+}
+
 function getProductGalleryPath(item: CartItem): string {
-  const search = new URLSearchParams({ product: item.productId });
+  const groupMember = findProductGroupMember(item.productSlug);
+  const productId = groupMember
+    ? createProductGroupId(groupMember.group.slug)
+    : item.productId;
+  const search = new URLSearchParams({
+    product: productId,
+    variant: item.variantId,
+  });
   if (item.size) {
     search.set("size", item.size);
   }
@@ -258,6 +289,7 @@ function CartQuantityControl({
   onQuantityChange,
 }: CartQuantityControlProps) {
   const [draft, setDraft] = useState(String(item.quantity));
+  const { productName } = getCartItemPresentation(item);
 
   useEffect(() => {
     setDraft(String(item.quantity));
@@ -297,8 +329,8 @@ function CartQuantityControl({
         type="button"
         aria-label={
           item.quantity === 1
-            ? `Remove ${item.productName} from cart`
-            : `Decrease quantity of ${item.productName}`
+            ? `Remove ${productName} from cart`
+            : `Decrease quantity of ${productName}`
         }
         title={item.quantity === 1 ? "Remove" : "Decrease quantity"}
         disabled={pending}
@@ -311,7 +343,7 @@ function CartQuantityControl({
       </button>
       <input
         type="number"
-        aria-label={`Quantity of ${item.productName}`}
+        aria-label={`Quantity of ${productName}`}
         min="0"
         step="1"
         inputMode="numeric"
@@ -332,7 +364,7 @@ function CartQuantityControl({
       />
       <button
         type="button"
-        aria-label={`Increase quantity of ${item.productName}`}
+        aria-label={`Increase quantity of ${productName}`}
         title="Increase quantity"
         disabled={pending}
         onPointerDown={(event) => event.preventDefault()}
@@ -361,13 +393,14 @@ function CartLineItem({
   const [isBackVisible, setIsBackVisible] = useState(false);
   const frontImage = item.images[0];
   const backImage = item.images[1];
+  const presentation = getCartItemPresentation(item);
 
   return (
     <li className="cart-item">
       <button
         className="cart-item__artwork"
         type="button"
-        aria-label={`Show ${isBackVisible ? "front" : "back"} of ${item.productName}`}
+        aria-label={`Show ${isBackVisible ? "front" : "back"} of ${presentation.productName}`}
         aria-pressed={isBackVisible}
         data-side={isBackVisible ? "back" : "front"}
         data-size={item.size}
@@ -403,11 +436,11 @@ function CartLineItem({
           className="cart-item__name"
           to={getProductGalleryPath(item)}
         >
-          {item.productName}
+          {presentation.productName}
         </NavLink>
       </div>
       <div className="cart-item__meta">
-        <span>{item.size ?? item.variantName}</span>
+        <span>{presentation.variantName}</span>
         <CartQuantityControl
           item={item}
           pending={pending}

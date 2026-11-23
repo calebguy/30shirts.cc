@@ -21,6 +21,8 @@ import {
   DEFAULT_SIZE,
   getDisplayedVariants,
   getInitialVariant,
+  getVariantSelectionLabel,
+  getVariantSelectionValue,
   isApparelSize,
   isSoldOut,
   usePreferredColorScheme,
@@ -103,7 +105,7 @@ export async function loader({ request }: Route.LoaderArgs): Promise<LoaderData>
     products,
     canonicalUrl,
     ogImageAlt: latestProduct
-      ? `${latestProduct.name} shirt from 30shirts.cc`
+      ? `${latestProduct.name} product from 30shirts.cc`
       : "30shirts.cc",
     ogImageUrl: latestProduct
       ? createOgImageUrl(latestProduct.slug, request.url)
@@ -142,11 +144,20 @@ function Storefront({ products }: { products: Product[] }) {
   const requestedProductId = searchParams.get("product");
   const initialProduct =
     products.find((product) => product.id === requestedProductId) ?? products[0];
+  const requestedVariantId = searchParams.get("variant");
   const requestedSize = searchParams.get("size");
+  const displayedInitialVariants = getDisplayedVariants(
+    initialProduct,
+    colorScheme,
+  );
   const initialVariant =
-    getDisplayedVariants(initialProduct, colorScheme).find(
+    displayedInitialVariants.find(
+      (variant) => variant.id === requestedVariantId,
+    ) ??
+    displayedInitialVariants.find(
       (variant) => variant.size === requestedSize,
-    ) ?? getInitialVariant(initialProduct, colorScheme);
+    ) ??
+    getInitialVariant(initialProduct, colorScheme);
   const [selection, setSelection] = useState(() => ({
     productId: initialProduct.id,
     selectedVariantId: initialVariant.id,
@@ -188,6 +199,8 @@ function Storefront({ products }: { products: Product[] }) {
     );
   const hasReferences = slideCount > 1;
   const productDescriptionHtml = selectedProduct.descriptionHtml.trim();
+  const variantSelectionLabel = getVariantSelectionLabel(selectedProduct);
+  const variantSelectionValue = getVariantSelectionValue(selectedVariant);
   const activeProductView =
     productView === "back" && selectedBackImage ? "back" : "front";
   const nextProductView =
@@ -211,7 +224,7 @@ function Storefront({ products }: { products: Product[] }) {
       selectedVariantId: nextVariant.id,
       preferredSize,
     });
-    replaceGalleryUrl(product.id, nextVariant.size);
+    replaceGalleryUrl(product.id, nextVariant);
     setActiveSlide(0);
     setProductView("front");
 
@@ -235,7 +248,7 @@ function Storefront({ products }: { products: Product[] }) {
         ? variant.size
         : current.preferredSize,
     }));
-    replaceGalleryUrl(selectedProduct.id, variant.size);
+    replaceGalleryUrl(selectedProduct.id, variant);
   }
 
   function scrollToSlide(index: number) {
@@ -383,8 +396,10 @@ function Storefront({ products }: { products: Product[] }) {
           className="purchase-panel"
           aria-label={`Purchase ${selectedProduct.name}`}
         >
-          <fieldset className="size-picker">
-            <legend className="visually-hidden">Size</legend>
+          <fieldset className="variant-options">
+            <legend className="visually-hidden">
+              {variantSelectionLabel}
+            </legend>
             <div>
               {displayedVariants.map((variant) => (
                 <button
@@ -397,7 +412,7 @@ function Storefront({ products }: { products: Product[] }) {
                   key={variant.id}
                   onClick={() => selectVariant(variant)}
                 >
-                  {variant.size ?? variant.name}
+                  {getVariantSelectionValue(variant)}
                 </button>
               ))}
             </div>
@@ -409,8 +424,8 @@ function Storefront({ products }: { products: Product[] }) {
               pending
                 ? "Adding to cart"
                 : selectedVariantUnavailable
-                  ? `${selectedProduct.name} in size ${selectedVariant.size ?? selectedVariant.name} is sold out`
-                  : `Add ${selectedProduct.name} in size ${selectedVariant.size ?? selectedVariant.name} to cart`
+                  ? `${selectedProduct.name}, ${variantSelectionLabel} ${variantSelectionValue}, is sold out`
+                  : `Add ${selectedProduct.name}, ${variantSelectionLabel} ${variantSelectionValue}, to cart`
             }
             type="button"
             disabled={pending || selectedVariantUnavailable}
@@ -489,10 +504,13 @@ function Storefront({ products }: { products: Product[] }) {
   );
 }
 
-function replaceGalleryUrl(productId: string, size?: string) {
-  const search = new URLSearchParams({ product: productId });
-  if (size) {
-    search.set("size", size);
+function replaceGalleryUrl(productId: string, variant: ProductVariant) {
+  const search = new URLSearchParams({
+    product: productId,
+    variant: variant.id,
+  });
+  if (variant.size) {
+    search.set("size", variant.size);
   }
   window.history.replaceState(window.history.state, "", `/?${search}`);
 }

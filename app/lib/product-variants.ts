@@ -37,6 +37,14 @@ export function getDisplayedVariants(
   return apparelVariants.length > 0 ? apparelVariants : variants;
 }
 
+export function getVariantSelectionLabel(product: Product): string {
+  return product.selectionLabel ?? "Size";
+}
+
+export function getVariantSelectionValue(variant: ProductVariant): string {
+  return variant.selectionValue ?? variant.size ?? variant.name;
+}
+
 export function isApparelSize(
   size: string | undefined,
 ): size is (typeof DISPLAYED_SIZES)[number] {

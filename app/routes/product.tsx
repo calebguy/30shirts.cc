@@ -4,9 +4,10 @@ import { Link } from "react-router";
 import { AddToCartButton } from "../components/cart";
 import { formatMoney, type Product } from "../lib/fourthwall";
 import {
-  DEFAULT_SIZE,
   getDisplayedVariants,
   getInitialVariant,
+  getVariantSelectionLabel,
+  getVariantSelectionValue,
   usePreferredColorScheme,
 } from "../lib/product-variants";
 import {
@@ -20,7 +21,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
   if (!loaderData) {
     return [
       {
-        title: "Shirt not found — 30shirts.cc",
+        title: "Product not found — 30shirts.cc",
       },
     ];
   }
@@ -66,11 +67,9 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
   const colorScheme = usePreferredColorScheme();
   const displayedVariants = getDisplayedVariants(product, colorScheme);
   const initialVariant = getInitialVariant(product, colorScheme);
-  const [selectedSize, setSelectedSize] = useState(
-    initialVariant.size ?? DEFAULT_SIZE,
-  );
+  const [selectedVariantId, setSelectedVariantId] = useState(initialVariant.id);
   const selectedVariant =
-    displayedVariants.find((variant) => variant.size === selectedSize) ??
+    displayedVariants.find((variant) => variant.id === selectedVariantId) ??
     initialVariant;
   const image = selectedVariant.images[0] ?? product.images[0];
 
@@ -101,16 +100,11 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
           />
 
           <label className="variant-picker">
-            <span>Size</span>
+            <span>{getVariantSelectionLabel(product)}</span>
             <select
               value={selectedVariant.id}
               onChange={(event) => {
-                const variant = displayedVariants.find(
-                  (candidate) => candidate.id === event.target.value,
-                );
-                if (variant?.size) {
-                  setSelectedSize(variant.size);
-                }
+                setSelectedVariantId(event.target.value);
               }}
             >
               {displayedVariants.map((variant) => (
@@ -119,7 +113,7 @@ export default function ProductPage({ loaderData }: Route.ComponentProps) {
                   disabled={!variant.available}
                   key={variant.id}
                 >
-                  {variant.size ?? variant.name}
+                  {getVariantSelectionValue(variant)}
                   {variant.available ? "" : " — Sold out"}
                 </option>
               ))}

@@ -39,6 +39,7 @@ export interface ProductVariant {
   price: Money;
   color?: string;
   size?: string;
+  selectionValue?: string;
   available: boolean;
   images: ProductImage[];
 }
@@ -47,6 +48,7 @@ export interface Product {
   id: string;
   slug: string;
   name: string;
+  selectionLabel?: string;
   description: string;
   descriptionHtml: string;
   available: boolean;
@@ -58,6 +60,7 @@ export interface Product {
 export interface CartItem {
   variantId: string;
   productId: string;
+  productSlug: string;
   productName: string;
   variantName: string;
   size?: string;
@@ -212,6 +215,7 @@ function parseCartItem(value: unknown): CartItem {
     variantId: requireString(variant.id, "cart variant id"),
     productId: requireString(product.id, "cart product id"),
     productName: requireString(product.name, "cart product name"),
+    productSlug: requireString(product.slug, "cart product slug"),
     variantName: requireString(variant.name, "cart variant name"),
     size: readAttributeName(attributes.size),
     quantity: requireNumber(item.quantity, "cart item quantity"),

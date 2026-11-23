@@ -8,6 +8,12 @@ import {
   parseProductPage,
   productDescriptionHtmlToText,
 } from "./fourthwall";
+import {
+  createProductGroupId,
+  PRODUCT_GROUPS,
+  type ProductGroupConfig,
+  type ProductGroupMemberConfig,
+} from "./product-groups";
 
 const FOURTHWALL_API_BASE = "https://storefront-api.fourthwall.com/v1";
 const CATALOG_PAGE_SIZE = "50";
@@ -25,6 +31,10 @@ const PRODUCT_DESCRIPTION_TAGS = [
   "u",
   "ul",
 ];
+
+interface LoadedProductGroupMember extends ProductGroupMemberConfig {
+  product: Product;
+}
 
 interface CatalogRequest {
   token: string;
@@ -78,18 +88,102 @@ export async function listProducts(
     pageNumber += 1;
   }
 
-  return products;
+  return applyProductGroups(products, request);
 }
 
 export async function getProduct(
   request: ProductRequest,
 ): Promise<Product> {
+  const group = PRODUCT_GROUPS.find(
+    (candidate) => candidate.slug === request.slug,
+  );
+  return group ? getGroupedProduct(group, request) : getSingleProduct(request);
+}
+
+async function applyProductGroups(
+  products: Product[],
+  request: CatalogRequest,
+): Promise<Product[]> {
+  let catalog = products;
+
+  for (const group of PRODUCT_GROUPS) {
+    const memberSlugs = new Set(group.members.map((member) => member.slug));
+    const insertionIndex = catalog.findIndex((product) =>
+      memberSlugs.has(product.slug),
+    );
+    if (insertionIndex === -1) {
+      continue;
+    }
+
+    const groupedProduct = await getGroupedProduct(group, request);
+    catalog = catalog.flatMap((product, index) => {
+      if (index === insertionIndex) {
+        return [groupedProduct];
+      }
+      return memberSlugs.has(product.slug) ? [] : [product];
+    });
+  }
+
+  return catalog;
+}
+
+async function getGroupedProduct(
+  group: ProductGroupConfig,
+  request: CatalogRequest,
+): Promise<Product> {
+  const members = await Promise.all(
+    group.members.map(async (member) => ({
+      ...member,
+      product: await getSingleProduct({ ...request, slug: member.slug }),
+    })),
+  );
+  return createGroupedProduct(group, members);
+}
+
+async function getSingleProduct(request: ProductRequest): Promise<Product> {
   const url = createApiUrl(
     `/products/${encodeURIComponent(request.slug)}`,
     request,
   );
   const value = await getJson(url, request.signal);
   return sanitizeProductDescription(parseProduct(value));
+}
+
+function createGroupedProduct(
+  group: ProductGroupConfig,
+  members: LoadedProductGroupMember[],
+): Product {
+  const primaryProduct = members[0]?.product;
+  if (!primaryProduct) {
+    throw new Error(`Product group ${group.slug} has no members.`);
+  }
+
+  const variants = members.flatMap(({ product, selectionValue }) => {
+    if (product.variants.length !== 1) {
+      throw new Error(
+        `Product group member ${product.slug} must have exactly one variant.`,
+      );
+    }
+
+    return product.variants.map((variant) => ({
+      ...variant,
+      selectionValue,
+      available: product.available && variant.available,
+    }));
+  });
+
+  return {
+    ...primaryProduct,
+    id: createProductGroupId(group.slug),
+    slug: group.slug,
+    name: group.name,
+    selectionLabel: group.selectionLabel,
+    available: variants.some((variant) => variant.available),
+    variants,
+    price: variants.reduce((lowest, variant) =>
+      variant.price.value < lowest.value ? variant.price : lowest,
+    primaryProduct.price),
+  };
 }
 
 function sanitizeProductDescription(product: Product): Product {
